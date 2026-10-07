@@ -7,7 +7,7 @@ import {
   IdType,
   TransactionDetails
 } from '../types/receipt';
-import { ANUDAN_OPTIONS, DAAN_OPTIONS } from '../utils/defaultData';
+import { ANUDAN_OPTIONS, DAAN_OPTIONS, DEFAULT_JAGANNATH_LOGO } from '../utils/defaultData';
 import { formatAmountInOdia, numberToWords } from '../utils/numberToWords';
 import {
   Building2,
@@ -233,10 +233,23 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
         {/* Permanent Uploaders */}
         <div className="border-t border-slate-300 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-[11px] text-orange-800 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1">
-              <Image className="w-3.5 h-3.5" />
-              <span>ଲୋଗୋ (Set Logo)</span>
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] text-orange-800 font-bold uppercase tracking-wider block flex items-center gap-1">
+                <Image className="w-3.5 h-3.5" />
+                <span>ଲୋଗୋ (Set Logo)</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setOrg((prev) => ({ ...prev, logoUrl: DEFAULT_JAGANNATH_LOGO }));
+                  localStorage.removeItem('sansad_savedLogo');
+                }}
+                className="text-[10px] text-orange-700 hover:underline font-bold"
+                title="Reset to official Shree red seal"
+              >
+                ଶ୍ରୀ ସିଲ୍ (Official Seal)
+              </button>
+            </div>
             <input
               type="file"
               accept="image/*"

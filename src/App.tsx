@@ -45,11 +45,16 @@ export default function App() {
 
   // 2. Organization State
   const [org, setOrg] = useState<OrgDetails>(() => {
-    const savedLogo = localStorage.getItem('sansad_savedLogo');
+    let savedLogo = localStorage.getItem('sansad_savedLogo');
+    // If previously saved logo was any vector SVG, reset to the direct image /images.jpg as requested
+    if (savedLogo && (savedLogo.startsWith('data:image/svg') || savedLogo.includes('<svg') || savedLogo.includes('Chaka'))) {
+      savedLogo = null;
+      localStorage.removeItem('sansad_savedLogo');
+    }
     const savedSig = localStorage.getItem('sansad_savedSignature');
     return {
       ...DEFAULT_ORG_DETAILS,
-      logoUrl: savedLogo || DEFAULT_ORG_DETAILS.logoUrl,
+      logoUrl: savedLogo || '/images.jpg',
       signatureUrl: savedSig || DEFAULT_ORG_DETAILS.signatureUrl
     };
   });
@@ -317,9 +322,10 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center overflow-hidden border border-orange-300">
               <img
-                src={org.logoUrl}
+                src={org.logoUrl || '/images.jpg'}
                 alt="Emblem"
                 className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
               />
             </div>
             <div>

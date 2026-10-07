@@ -94,12 +94,12 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
 
           {/* Center: Sacred Emblem Logo */}
           <div className="w-[18%] flex justify-center items-center">
-            <div className="bg-white rounded-full p-1.5 border-[3px] border-orange-300 shadow-md overflow-hidden flex items-center justify-center w-[110px] h-[110px] ring-2 ring-orange-500/20">
+            <div className="bg-white rounded-full p-1 border-[2.5px] border-orange-300 shadow-md overflow-hidden flex items-center justify-center w-[110px] h-[110px] ring-2 ring-orange-500/20">
               <img
-                src={org.logoUrl}
+                src={org.logoUrl || '/images.jpg'}
                 alt="Logo"
                 className="w-full h-full object-contain"
-                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
               />
             </div>
           </div>
