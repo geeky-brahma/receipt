@@ -1,0 +1,6 @@
+{
+  "name": "Sri Jagannath Sansad Donation Receipt Generator",
+  "description": "Donation receipt and invoice maker for Sri Jagannath Sansad with live A4 preview, Odia script support, secure PDF export, and donation records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
