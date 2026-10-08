@@ -37,11 +37,32 @@ import {
   RotateCcw
 } from 'lucide-react';
 
+const AUTO_LOCK_DELAY = 10 * 60 * 1000;
+const DRAFT_STORAGE_KEY = 'sansad_receipt_draft';
+
+interface ReceiptDraft {
+  org: OrgDetails;
+  donor: DonorDetails;
+  transaction: TransactionDetails;
+  savedAt: string;
+}
+
+const readSavedDraft = (): ReceiptDraft | null => {
+  try {
+    const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function App() {
   // 1. Auth State
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
     return localStorage.getItem('sansad_auth_unlocked') === 'true';
   });
+
+  const [savedDraft] = useState<ReceiptDraft | null>(() => readSavedDraft());
 
   // 2. Organization State
   const [org, setOrg] = useState<OrgDetails>(() => {
@@ -54,13 +75,14 @@ export default function App() {
     const savedSig = localStorage.getItem('sansad_savedSignature');
     return {
       ...DEFAULT_ORG_DETAILS,
-      logoUrl: savedLogo || DEFAULT_ORG_DETAILS.logoUrl,
-      signatureUrl: savedSig || DEFAULT_ORG_DETAILS.signatureUrl
+      ...(savedDraft?.org || {}),
+      logoUrl: savedLogo || savedDraft?.org.logoUrl || DEFAULT_ORG_DETAILS.logoUrl,
+      signatureUrl: savedSig || savedDraft?.org.signatureUrl || DEFAULT_ORG_DETAILS.signatureUrl
     };
   });
 
   // 3. Donor State
-  const [donor, setDonor] = useState<DonorDetails>({
+  const [donor, setDonor] = useState<DonorDetails>(savedDraft?.donor || {
     name: '',
     relationType: 'ପିତା',
     relationName: '',
@@ -73,7 +95,7 @@ export default function App() {
   });
 
   // 4. Transaction State
-  const [transaction, setTransaction] = useState<TransactionDetails>(() => ({
+  const [transaction, setTransaction] = useState<TransactionDetails>(() => savedDraft?.transaction || ({
     receiptNo: `SJS-${Math.floor(100 + Math.random() * 900)}`,
     date: new Date().toISOString().split('T')[0],
     amount: 0,
@@ -112,6 +134,40 @@ export default function App() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  const saveDraft = () => {
+    const draft: ReceiptDraft = {
+      org,
+      donor,
+      transaction,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  };
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    let lockTimer: number;
+    const lockAfterInactivity = () => {
+      saveDraft();
+      localStorage.removeItem('sansad_auth_unlocked');
+      setIsUnlocked(false);
+    };
+    const resetLockTimer = () => {
+      window.clearTimeout(lockTimer);
+      lockTimer = window.setTimeout(lockAfterInactivity, AUTO_LOCK_DELAY);
+    };
+    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+
+    resetLockTimer();
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, resetLockTimer));
+
+    return () => {
+      window.clearTimeout(lockTimer);
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetLockTimer));
+    };
+  }, [isUnlocked, org, donor, transaction]);
 
   // Compute responsive auto-scale for A4 container (794px width)
   const [autoScale, setAutoScale] = useState<number>(0.85);
@@ -367,6 +423,7 @@ export default function App() {
 
             <button
               onClick={() => {
+                saveDraft();
                 localStorage.removeItem('sansad_auth_unlocked');
                 setIsUnlocked(false);
               }}
