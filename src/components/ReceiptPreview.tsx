@@ -325,13 +325,22 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
         {/* Right: Signature & Trust Seal */}
         <div className="w-[38%] text-center flex flex-col items-center justify-end min-h-[110px]">
           {org.signatureUrl ? (
-            <div className="h-[60px] flex items-center justify-center mb-1">
+            <div className="relative h-[66px] w-[236px] flex items-center justify-center mb-1">
               <img
                 src={org.signatureUrl}
                 alt="Authorized Signatory"
-                className="max-h-[58px] max-w-[200px] object-contain"
+                className="h-[60px] w-[220px] object-contain"
                 crossOrigin="anonymous"
               />
+              <div className="absolute right-0 top-0 h-[68px] w-[68px] rotate-[-10deg] rounded-full border-[2px] border-dashed border-red-700/80 text-red-700/80">
+                <div className="absolute inset-[4px] rounded-full border border-red-700/70" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center font-sans text-[6px] font-black leading-tight">
+                  <span>SRI JAGANNATH</span>
+                  <span className="text-[7px]">SANSAD</span>
+                  <span className="mt-1 text-[5px]">AUTH. SIGN</span>
+                </div>
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[12px]">✦</span>
+              </div>
             </div>
           ) : (
             <div className="h-[60px]" />

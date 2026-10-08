@@ -4,13 +4,13 @@ import { Lock, Eye, EyeOff, ShieldCheck, KeyRound } from 'lucide-react';
 interface PasswordModalProps {
   isOpen: boolean;
   onSuccess: () => void;
-  savedPassword?: string;
 }
+
+const SITE_PASSWORD = 'SJS@26';
 
 export const PasswordModal: React.FC<PasswordModalProps> = ({
   isOpen,
-  onSuccess,
-  savedPassword = 'SJS@26'
+  onSuccess
 }) => {
   const [inputVal, setInputVal] = useState('');
   const [error, setError] = useState(false);
@@ -22,7 +22,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (inputVal.trim() === savedPassword) {
+    if (inputVal.trim() === SITE_PASSWORD) {
       setError(false);
       if (rememberMe) {
         localStorage.setItem('sansad_auth_unlocked', 'true');
