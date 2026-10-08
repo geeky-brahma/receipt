@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import {
   DonorDetails,
@@ -46,7 +46,7 @@ export default function App() {
   // 2. Organization State
   const [org, setOrg] = useState<OrgDetails>(() => {
     let savedLogo = localStorage.getItem('sansad_savedLogo');
-    // If previously saved logo was any vector SVG, reset to the direct image /images.jpg as requested
+    // If previously saved logo was any vector SVG or older placeholder, reset to the direct user image
     if (savedLogo && (savedLogo.startsWith('data:image/svg') || savedLogo.includes('<svg') || savedLogo.includes('Chaka'))) {
       savedLogo = null;
       localStorage.removeItem('sansad_savedLogo');
@@ -54,7 +54,7 @@ export default function App() {
     const savedSig = localStorage.getItem('sansad_savedSignature');
     return {
       ...DEFAULT_ORG_DETAILS,
-      logoUrl: savedLogo || '/images.jpg',
+      logoUrl: savedLogo || DEFAULT_ORG_DETAILS.logoUrl,
       signatureUrl: savedSig || DEFAULT_ORG_DETAILS.signatureUrl
     };
   });
@@ -177,40 +177,42 @@ export default function App() {
     showToast('All records cleared.');
   };
 
-  // High Resolution PDF Generation via html2canvas & jspdf
+  // High Resolution PDF Generation via html-to-image & jspdf
   const handleGeneratePdf = async () => {
     if (!receiptRef.current) return;
     setIsGeneratingPdf(true);
 
     try {
-      // Create offscreen clone with unscaled 794x1123 dimensions
-      const original = receiptRef.current;
-      const clone = original.cloneNode(true) as HTMLElement;
+      const element = receiptRef.current;
 
-      clone.style.position = 'fixed';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      clone.style.transform = 'none';
-      clone.style.width = '794px';
-      clone.style.height = '1123px';
-      clone.style.margin = '0';
-      clone.style.zIndex = '-1000';
+      // Ensure any images are fully decoded
+      const imgs = element.querySelectorAll('img');
+      await Promise.all(
+        Array.from(imgs).map(async (img) => {
+          if (!img.complete) {
+            await new Promise((resolve) => {
+              img.onload = resolve;
+              img.onerror = resolve;
+            });
+          }
+        })
+      );
 
-      document.body.appendChild(clone);
-      await new Promise((r) => setTimeout(r, 120));
-
-      const canvas = await html2canvas(clone, {
-        scale: 2, // 2x high resolution
-        useCORS: true,
-        logging: false,
+      // Capture receipt DOM element directly
+      const imgData = await toJpeg(element, {
+        quality: 0.98,
+        pixelRatio: 2, // 2x high resolution (1588 x 2246 px)
         backgroundColor: '#ffffff',
         width: 794,
-        height: 1123
+        height: 1123,
+        skipFonts: true,
+        cacheBust: false
       });
 
-      document.body.removeChild(clone);
+      if (!imgData || imgData.length < 1500) {
+        throw new Error('Image capture returned an empty buffer');
+      }
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const pdf = new jsPDF('p', 'mm', 'a4');
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 

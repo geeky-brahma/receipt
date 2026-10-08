@@ -528,8 +528,8 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
               >
                 <option value="ପ୍ୟାନ୍">ପ୍ୟାନ୍ (PAN)</option>
                 <option value="ଆଧାର">ଆଧାର (Aadhaar)</option>
-                <option value="ଭୋଟ ପରିଚୟ">ଭୋଟ ପରିଚୟ</option>
-                <option value="ଅନ୍ୟାନ୍ୟ">ଅନ୍ୟାନ୍ୟ</option>
+                <option value="ଭୋଟ ପରିଚୟ">ଭୋଟ ପରିଚୟ (Voter ID)</option>
+                <option value="ଅନ୍ୟାନ୍ୟ">ଅନ୍ୟାନ୍ୟ (Others)</option>
               </select>
               <input
                 type="text"

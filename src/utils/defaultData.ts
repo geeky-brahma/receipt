@@ -1,7 +1,8 @@
 import { DonorDetails, OrgDetails, TransactionDetails } from '../types/receipt';
+import { SHREE_LOGO_IMAGE_DATA } from './logoImage';
 
-// Official Sri Jagannath Sansad "images.jpg" image file as it is
-export const DEFAULT_JAGANNATH_LOGO = '/images.jpg';
+// Official Sri Jagannath Sansad "images.jpg" user-uploaded image as base64 data URL
+export const DEFAULT_JAGANNATH_LOGO = SHREE_LOGO_IMAGE_DATA;
 
 export const DEFAULT_SIGNATURE_STAMP = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
