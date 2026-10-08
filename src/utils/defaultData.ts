@@ -5,17 +5,23 @@ import { SHREE_LOGO_IMAGE_DATA } from './logoImage';
 export const DEFAULT_JAGANNATH_LOGO = SHREE_LOGO_IMAGE_DATA;
 
 export const DEFAULT_SIGNATURE_STAMP = `data:image/svg+xml;utf8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" width="240" height="80">
-  <!-- Stylized Authorized Signatory Cursive Handwriting -->
-  <path d="M 20 50 Q 40 18 60 40 T 95 35 T 120 52 T 150 25 T 180 48 T 220 38" 
-        fill="none" stroke="#1e3a8a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 35 60 Q 90 54 195 56" fill="none" stroke="#1e3a8a" stroke-width="1.8" stroke-linecap="round"/>
-  <!-- Circular Stamp Watermark -->
-  <g transform="translate(160, 36) rotate(-12)" opacity="0.75">
-    <ellipse cx="0" cy="0" rx="34" ry="24" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="3,2"/>
-    <text x="0" y="-8" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#dc2626" font-family="sans-serif">SRI JAGANNATH</text>
-    <text x="0" y="2" text-anchor="middle" font-size="7" font-weight="bold" fill="#dc2626" font-family="sans-serif">SANSAD</text>
-    <text x="0" y="12" text-anchor="middle" font-size="6" font-weight="bold" fill="#dc2626" font-family="sans-serif">★ AUTH. SIGN ★</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" width="360" height="120">
+  <g fill="none" stroke="#152b5c" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 16 70 C 18 38 30 22 42 30 C 55 39 45 64 22 72 C 56 75 70 54 82 44 C 89 38 91 48 87 61 C 83 76 93 79 104 67 C 116 54 121 39 126 42 C 133 46 121 69 132 72 C 143 76 151 54 159 45 C 166 36 169 50 163 64 C 158 77 169 78 180 65 C 189 55 194 41 201 43 C 208 45 198 66 205 70 C 215 76 226 60 235 51 C 242 44 246 53 240 66 C 234 79 246 78 257 66" stroke-width="4"/>
+    <path d="M 28 88 C 76 82 137 85 205 82 C 230 81 247 78 263 73" stroke-width="2.4"/>
+    <path d="M 40 29 C 35 15 26 10 20 17" stroke-width="3"/>
+  </g>
+  <g transform="translate(299 60) rotate(-10)" fill="none" stroke="#c74343" opacity="0.78">
+    <circle cx="0" cy="0" r="49" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <circle cx="0" cy="0" r="43" stroke-width="1.2"/>
+    <path d="M -27 -30 L 27 -30 M -32 30 L 32 30" stroke-width="1.4"/>
+    <path d="M -8 -7 L 8 7 M 8 -7 L -8 7" stroke-width="1.5"/>
+    <path d="M 0 -12 L 0 12 M -12 0 L 12 0" stroke-width="1"/>
+  </g>
+  <g transform="translate(299 60) rotate(-10)" fill="#c74343" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">
+    <text x="0" y="-18" font-size="10">SRI JAGANNATH</text>
+    <text x="0" y="-4" font-size="11">SANSAD</text>
+    <text x="0" y="22" font-size="8">AUTH. SIGN</text>
   </g>
 </svg>
 `)}`;
