@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, ShieldCheck, KeyRound } from 'lucide-react';
+import { Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 interface PasswordModalProps {
   isOpen: boolean;
   onSuccess: () => void;
 }
 
-const SITE_PASSWORD = 'SJS@26';
+const SITE_PASSWORD = 'GaroiJagannath@26';
 
 export const PasswordModal: React.FC<PasswordModalProps> = ({
   isOpen,
@@ -16,7 +16,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
   const [error, setError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [showHint, setShowHint] = useState(false);
 
   if (!isOpen) return null;
 
@@ -84,7 +83,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between text-xs text-slate-600 px-1">
+            <div className="flex items-center text-xs text-slate-600 px-1">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -94,22 +93,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
                 />
                 <span>ମନେ ରଖନ୍ତୁ (Remember this device)</span>
               </label>
-
-              <button
-                type="button"
-                onClick={() => setShowHint(!showHint)}
-                className="text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>ସଙ୍କେତ (Hint)</span>
-              </button>
             </div>
-
-            {showHint && (
-              <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 text-left">
-                Default password: <strong className="font-mono bg-white px-1.5 py-0.5 rounded border border-amber-300">SJS@26</strong>
-              </div>
-            )}
 
             <button
               type="submit"
