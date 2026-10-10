@@ -35,15 +35,16 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
     classificationTitle = '(ଅନୁଦାନ) ଏବଂ (ଦାନ)';
   }
 
-  // Combine seva items
-  const allSevaItems = [
+  const dhupaItems = [
     ...transaction.selectedAnudan,
     ...(transaction.anudanPurpose ? [transaction.anudanPurpose] : []),
+  ];
+  const purposeItems = [
     ...transaction.selectedDaan,
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ];
 
-  const defaultSevaText = 'ଦୈନିକ ନୀତିକାନ୍ତି / ସାଧାରଣ ଦାନ (General Donation)';
+  const defaultPurposeText = 'ଦୈନିକ ନୀତିକାନ୍ତି / ସାଧାରଣ ଦାନ (General Donation)';
 
   // Odia amount in words & numbers
   const amountInOdiaWords = numberToWords(transaction.amount, { lang: 'or', currency: true });
@@ -233,18 +234,33 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                 </p>
                 
                 <div className="mt-3 pl-4 border-l-[3.5px] border-orange-500 space-y-2">
+                  {dhupaItems.length > 0 && (
+                    <p className="text-slate-800 text-[15px] leading-relaxed break-words">
+                      <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
+                        ଧୂପର ପ୍ରକାର (Type of Dhup):
+                      </span>
+                      <span className="font-semibold text-slate-950">
+                        {dhupaItems.map((item) => (
+                          <span key={item} className="block">
+                            {item}
+                          </span>
+                        ))}
+                      </span>
+                    </p>
+                  )}
+
                   <p className="text-slate-800 text-[15px] leading-relaxed break-words">
                     <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
                       କେଉଁ ବାବଦକୁ (Purpose):
                     </span>
                     <span className="font-semibold text-slate-950">
-                      {allSevaItems.length > 0
-                        ? allSevaItems.map((item) => (
+                      {purposeItems.length > 0
+                        ? purposeItems.map((item) => (
                             <span key={item} className="block">
                               {item}
                             </span>
                           ))
-                        : defaultSevaText}
+                        : defaultPurposeText}
                     </span>
                   </p>
 
