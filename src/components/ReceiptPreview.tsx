@@ -23,7 +23,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
   id = 'preview-section'
 }, ref) => {
   // Determine seva categories title
-  const hasAnudan = transaction.selectedAnudan.length > 0;
+  const hasAnudan = transaction.selectedAnudan.length > 0 || !!transaction.anudanPurpose;
   const hasDaan = transaction.selectedDaan.length > 0 || !!transaction.customSeva;
 
   let classificationTitle = 'ଦାନ (Donation / Contribution)';
@@ -38,6 +38,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
   // Combine seva items
   const allSevaItems = [
     ...transaction.selectedAnudan,
+    ...(transaction.anudanPurpose ? [transaction.anudanPurpose] : []),
     ...transaction.selectedDaan,
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ];

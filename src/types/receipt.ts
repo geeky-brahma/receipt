@@ -36,6 +36,7 @@ export interface TransactionDetails {
   txnId: string;
   selectedAnudan: string[]; // e.g. 'ବଲ୍ଲଭ ଧୂପ', 'ସକାଳ ଧୂପ', etc.
   selectedDaan: string[];   // e.g. 'ଆଶ୍ରମ ଚାନ୍ଦା', 'ମହୋତ୍ସବ ଖର୍ଚ୍ଚ', etc.
+  anudanPurpose: string;
   customSeva: string;
   sevaDate: string;
   showUpiQr: boolean;

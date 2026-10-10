@@ -95,7 +95,7 @@ export default function App() {
   });
 
   // 4. Transaction State
-  const [transaction, setTransaction] = useState<TransactionDetails>(() => savedDraft?.transaction || ({
+  const [transaction, setTransaction] = useState<TransactionDetails>(() => ({
     receiptNo: `SJS-${Math.floor(100 + Math.random() * 900)}`,
     date: new Date().toISOString().split('T')[0],
     amount: 0,
@@ -105,7 +105,9 @@ export default function App() {
     selectedDaan: [],
     customSeva: '',
     sevaDate: '',
-    showUpiQr: false
+    showUpiQr: false,
+    ...savedDraft?.transaction,
+    anudanPurpose: savedDraft?.transaction.anudanPurpose || ''
   }));
 
   // 5. History / Registry State
@@ -319,6 +321,7 @@ export default function App() {
       txnId: '',
       selectedAnudan: [],
       selectedDaan: [],
+      anudanPurpose: '',
       customSeva: '',
       sevaDate: '',
       showUpiQr: false

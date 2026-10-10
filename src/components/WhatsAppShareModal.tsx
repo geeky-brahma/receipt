@@ -29,6 +29,7 @@ export const WhatsAppShareModal: React.FC<WhatsAppShareModalProps> = ({
 
   const sevaList = [
     ...transaction.selectedAnudan,
+    ...(transaction.anudanPurpose ? [transaction.anudanPurpose] : []),
     ...transaction.selectedDaan,
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ].join(', ');

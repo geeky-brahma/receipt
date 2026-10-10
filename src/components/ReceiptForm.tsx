@@ -616,6 +616,19 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
               );
             })}
           </div>
+
+          <div className="mt-3">
+            <label className="text-xs text-orange-900 font-bold block mb-1">
+              ନିର୍ଦ୍ଧାରିତ ଧୂପସେବା କେଉଁ ଉଦ୍ଧେଶ୍ୟରେ
+            </label>
+            <input
+              type="text"
+              value={transaction.anudanPurpose}
+              onChange={(e) => setTransaction({ ...transaction, anudanPurpose: e.target.value })}
+              placeholder="ନିର୍ଦ୍ଧାରିତ ଧୂପସେବା କେଉଁ ଉଦ୍ଧେଶ୍ୟରେ"
+              className="w-full px-3 py-1.5 border border-orange-300 rounded-lg text-xs bg-white placeholder-slate-400 focus:ring-2 focus:ring-orange-400 outline-none"
+            />
+          </div>
         </div>
 
         {/* 2. Daan (General / Specific Purposes) */}

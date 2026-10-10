@@ -59,6 +59,7 @@ export const SAMPLE_TRANSACTION: TransactionDetails = {
   txnId: 'UPI/428901928491/SBI',
   selectedAnudan: ['ଚାରିଧୁପ'],
   selectedDaan: ['ଆଶ୍ରମ ଚାନ୍ଦା'],
+  anudanPurpose: '',
   customSeva: '',
   sevaDate: 'କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା (Kartika Purnima)',
   showUpiQr: false
