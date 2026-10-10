@@ -37,7 +37,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
 
   const dhupaItems = [
     ...transaction.selectedAnudan,
-    ...(transaction.anudanPurpose ? [transaction.anudanPurpose] : []),
   ];
   const purposeItems = [
     ...transaction.selectedDaan,
@@ -245,6 +244,17 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                             {item}
                           </span>
                         ))}
+                      </span>
+                    </p>
+                  )}
+
+                  {transaction.anudanPurpose && (
+                    <p className="text-slate-800 text-[15px] leading-relaxed break-words">
+                      <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
+                        ଧୂପସେବା ଉଦ୍ଦେଶ୍ୟ (Dhupa Seva Purpose):
+                      </span>
+                      <span className="font-semibold text-slate-950">
+                        {transaction.anudanPurpose}
                       </span>
                     </p>
                   )}
