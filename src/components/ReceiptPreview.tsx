@@ -44,7 +44,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ];
 
-  const defaultPurposeText = 'ଦୈନିକ ନୀତିକାନ୍ତି / ସାଧାରଣ ଦାନ (General Donation)';
+  const defaultPurposeText = '';
 
   // Odia amount in words & numbers
   const amountInOdiaWords = numberToWords(transaction.amount, { lang: 'or', currency: true });
