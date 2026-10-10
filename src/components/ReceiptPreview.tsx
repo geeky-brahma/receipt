@@ -43,8 +43,8 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ];
 
-  const sevaText = allSevaItems.length > 0 ? allSevaItems.join(', ') : 'ଦୈନିକ ନୀତିକାନ୍ତି / ସାଧାରଣ ଦାନ (General Donation)';
-  
+  const defaultSevaText = 'ଦୈନିକ ନୀତିକାନ୍ତି / ସାଧାରଣ ଦାନ (General Donation)';
+
   // Odia amount in words & numbers
   const amountInOdiaWords = numberToWords(transaction.amount, { lang: 'or', currency: true });
   const amountInEnglishWords = numberToWordsIndian(transaction.amount);
@@ -237,7 +237,15 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                     <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
                       କେଉଁ ବାବଦକୁ (Purpose):
                     </span>
-                    <span className="font-semibold text-slate-950">{sevaText}</span>
+                    <span className="font-semibold text-slate-950">
+                      {allSevaItems.length > 0
+                        ? allSevaItems.map((item) => (
+                            <span key={item} className="block">
+                              {item}
+                            </span>
+                          ))
+                        : defaultSevaText}
+                    </span>
                   </p>
 
                   {(hasAnudan || transaction.sevaDate) && (
