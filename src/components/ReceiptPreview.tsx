@@ -43,8 +43,6 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
     ...(transaction.customSeva ? [transaction.customSeva] : [])
   ];
 
-  const defaultPurposeText = '';
-
   // Odia amount in words & numbers
   const amountInOdiaWords = numberToWords(transaction.amount, { lang: 'or', currency: true });
   const amountInEnglishWords = numberToWordsIndian(transaction.amount);
@@ -259,20 +257,20 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                     </p>
                   )}
 
-                  <p className="text-slate-800 text-[15px] leading-relaxed break-words">
-                    <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
-                      କେଉଁ ବାବଦକୁ (Purpose):
-                    </span>
-                    <span className="font-semibold text-slate-950">
-                      {purposeItems.length > 0
-                        ? purposeItems.map((item) => (
-                            <span key={item} className="block">
-                              {item}
-                            </span>
-                          ))
-                        : defaultPurposeText}
-                    </span>
-                  </p>
+                  {hasDaan && (
+                    <p className="text-slate-800 text-[15px] leading-relaxed break-words">
+                      <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
+                        ଦାନ ଉଦ୍ଦେଶ୍ୟ (Daan Purpose):
+                      </span>
+                      <span className="font-semibold text-slate-950">
+                        {purposeItems.map((item) => (
+                          <span key={item} className="block">
+                            {item}
+                          </span>
+                        ))}
+                      </span>
+                    </p>
+                  )}
 
                   {(hasAnudan || transaction.sevaDate) && (
                     <p className="text-slate-800 text-[14px]">
