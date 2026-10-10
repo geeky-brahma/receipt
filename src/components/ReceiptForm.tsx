@@ -619,7 +619,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
 
           <div className="mt-3">
             <label className="text-xs text-orange-900 font-bold block mb-1">
-              ନିର୍ଦ୍ଧାରିତ ଧୂପସେବା କେଉଁ ଉଦ୍ଧେଶ୍ୟରେ
+              ଧୂପସେବା ଉଦ୍ଦେଶ୍ୟ (Dhupa Seva Purpose)
             </label>
             <input
               type="text"
