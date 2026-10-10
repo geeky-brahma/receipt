@@ -237,7 +237,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                   {dhupaItems.length > 0 && (
                     <p className="text-slate-800 text-[15px] leading-relaxed break-words">
                       <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
-                        ଧୂପର ପ୍ରକାର (Type of Dhup):
+                        କେଉଁ ବାବଦକୁ (Purpose):
                       </span>
                       <span className="font-semibold text-slate-950">
                         {dhupaItems.map((item) => (
@@ -249,7 +249,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                     </p>
                   )}
 
-                  <p className="text-slate-800 text-[15px] leading-relaxed break-words">
+                  {/* <p className="text-slate-800 text-[15px] leading-relaxed break-words">
                     <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
                       କେଉଁ ବାବଦକୁ (Purpose):
                     </span>
@@ -262,7 +262,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                           ))
                         : defaultPurposeText}
                     </span>
-                  </p>
+                  </p> */}
 
                   {(hasAnudan || transaction.sevaDate) && (
                     <p className="text-slate-800 text-[14px]">
