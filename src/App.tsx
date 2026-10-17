@@ -154,14 +154,21 @@ export default function App() {
     const syncRecords = async (updateNextReceiptNumber = false) => {
       setIsSyncingRecords(true);
       try {
+        await receiptApi.syncPending();
         const sharedRecords = await receiptApi.list();
+        const pendingRecords = receiptApi.getPending();
+        const pendingIds = new Set(pendingRecords.map((record) => record.id));
+        const syncedRecords = [
+          ...pendingRecords,
+          ...sharedRecords.filter((record) => !pendingIds.has(record.id))
+        ];
         if (isMounted) {
-          setRecords(sharedRecords);
-          localStorage.setItem('sansad_receipt_records', JSON.stringify(sharedRecords));
+          setRecords(syncedRecords);
+          localStorage.setItem('sansad_receipt_records', JSON.stringify(syncedRecords));
           if (updateNextReceiptNumber) {
             setTransaction((previous) => ({
               ...previous,
-              receiptNo: getNextReceiptNo(sharedRecords)
+              receiptNo: getNextReceiptNo(syncedRecords)
             }));
           }
         }
@@ -169,7 +176,7 @@ export default function App() {
         console.error('Google Sheets sync failed:', error);
         if (isMounted) {
           const message = error instanceof Error ? error.message : 'Google Sheet unavailable.';
-          showToast(`⚠️ ${message}`);
+          showToast(`⚠️ ${message} Pending receipts remain saved on this device.`);
         }
       } finally {
         if (isMounted) setIsSyncingRecords(false);
@@ -177,9 +184,12 @@ export default function App() {
     };
     void syncRecords(true);
     const syncInterval = window.setInterval(() => void syncRecords(), 30_000);
+    const handleOnline = () => void syncRecords();
+    window.addEventListener('online', handleOnline);
     return () => {
       isMounted = false;
       window.clearInterval(syncInterval);
+      window.removeEventListener('online', handleOnline);
     };
   }, []);
 
@@ -245,21 +255,23 @@ export default function App() {
       return false;
     }
 
+    const receiptNo = getNextReceiptNo(records);
+    const transactionToSave = { ...transaction, receiptNo };
+    setTransaction(transactionToSave);
+    const newRecord: ReceiptRecord = {
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      receiptNo,
+      date: transactionToSave.date,
+      createdAt: new Date().toISOString(),
+      donor: { ...donor },
+      transaction: transactionToSave,
+      totalAmount: transactionToSave.amount
+    };
+
     try {
       setIsSavingRecord(true);
-      const receiptNo = getNextReceiptNo(records);
-      const transactionToSave = { ...transaction, receiptNo };
-      setTransaction(transactionToSave);
-      const newRecord: ReceiptRecord = {
-        id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        receiptNo,
-        date: transactionToSave.date,
-        createdAt: new Date().toISOString(),
-        donor: { ...donor },
-        transaction: transactionToSave,
-        totalAmount: transactionToSave.amount
-      };
-      await receiptApi.save(newRecord);
+      receiptApi.queueSave(newRecord);
+      await receiptApi.syncPending();
       const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
       setRecords(updated);
       localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
@@ -267,8 +279,11 @@ export default function App() {
       return true;
     } catch (error) {
       console.error('Google Sheets save failed:', error);
-      showToast('❌ Could not save to Google Sheets.');
-      return false;
+      const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
+      setRecords(updated);
+      localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
+      showToast('📥 Saved on this device. It will sync to Google Sheets when internet returns.');
+      return true;
     } finally {
       setIsSavingRecord(false);
     }
