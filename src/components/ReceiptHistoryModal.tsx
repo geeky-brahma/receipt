@@ -18,8 +18,8 @@ interface ReceiptHistoryModalProps {
   onClose: () => void;
   records: ReceiptRecord[];
   onLoadRecord: (record: ReceiptRecord) => void;
-  onDeleteRecord: (id: string) => void;
-  onClearAll: () => void;
+  onDeleteRecord: (id: string) => void | Promise<void>;
+  onClearAll: () => void | Promise<void>;
 }
 
 export const ReceiptHistoryModal: React.FC<ReceiptHistoryModalProps> = ({

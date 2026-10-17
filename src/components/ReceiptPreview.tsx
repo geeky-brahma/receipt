@@ -75,7 +75,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
             <h1 className="text-[34px] font-black text-orange-700 tracking-tight leading-none mb-1">
               {org.nameOdia || 'ଶ୍ରୀ ଜଗନ୍ନାଥ ସଂସଦ'}
             </h1>
-            <p className="text-[12px] font-black text-orange-950 uppercase tracking-wider mb-1">
+            <p className="text-[24px] font-black text-orange-950 uppercase tracking-wider mb-1">
               {org.name || 'SRI JAGANNATH SANSAD'}
             </p>
             <p className="text-red-700 text-[12px] font-bold leading-snug">
@@ -83,7 +83,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
             </p>
             <div className="flex items-center gap-2 text-slate-700 text-[11px] mt-2 font-bold tracking-wide">
               <span className="bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 text-orange-900">
-                ରେଜିଷ୍ଟ୍ରେସନ: {org.regNo}
+                Registration No.: {org.regNo}
               </span>
               <span className="bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 text-orange-900">
                 PAN: {org.panNo}
