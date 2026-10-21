@@ -5,7 +5,8 @@ import {
   PaymentMode,
   RelationType,
   IdType,
-  TransactionDetails
+  TransactionDetails,
+  Signatory
 } from '../types/receipt';
 import { ANUDAN_OPTIONS, DAAN_OPTIONS, DEFAULT_JAGANNATH_LOGO } from '../utils/defaultData';
 import { formatAmountInOdia, numberToWords } from '../utils/numberToWords';
@@ -16,11 +17,9 @@ import {
   FileCheck2,
   HelpCircle,
   Image,
-  PenTool,
   Printer,
   RefreshCw,
   Sparkles,
-  Upload,
   UserCheck,
   CheckCircle2,
   Share2
@@ -36,7 +35,6 @@ interface ReceiptFormProps {
   onGeneratePdf: () => void;
   onDirectPrint: () => void;
   onSaveToHistory: () => void | Promise<void | boolean>;
-  onOpenSignaturePad: () => void;
   onFillSample: () => void;
   onShareWhatsApp: () => void;
   isGeneratingPdf: boolean;
@@ -64,7 +62,6 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   onGeneratePdf,
   onDirectPrint,
   onSaveToHistory,
-  onOpenSignaturePad,
   onFillSample,
   onShareWhatsApp,
   isGeneratingPdf,
@@ -81,20 +78,6 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
         const base64 = event.target?.result as string;
         setOrg((prev) => ({ ...prev, logoUrl: base64 }));
         localStorage.setItem('sansad_savedLogo', base64);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Signature file upload
-  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        setOrg((prev) => ({ ...prev, signatureUrl: base64 }));
-        localStorage.setItem('sansad_savedSignature', base64);
       };
       reader.readAsDataURL(file);
     }
@@ -261,25 +244,24 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] text-orange-800 font-bold uppercase tracking-wider block flex items-center gap-1">
-                <PenTool className="w-3.5 h-3.5" />
-                <span>ସ୍ଵାକ୍ଷର (Signature)</span>
-              </label>
-              <button
-                type="button"
-                onClick={onOpenSignaturePad}
-                className="text-[10px] text-orange-700 hover:underline font-bold"
-              >
-                Draw Signature
-              </button>
-            </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleSignatureUpload}
-              className="w-full text-xs text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-orange-100 file:text-orange-800 hover:file:bg-orange-200 cursor-pointer"
-            />
+            <label className="text-[11px] text-orange-800 font-bold uppercase tracking-wider block mb-1">
+              ସ୍ଵାକ୍ଷରକାରୀ (Created By)
+            </label>
+            <select
+              value={org.signatory}
+              onChange={(e) => {
+                const signatory = e.target.value as Signatory;
+                setOrg((prev) => ({
+                  ...prev,
+                  signatory,
+                  signatureUrl: signatory === 'biranchi' ? '/biranchi_sign.png' : '/sunil_sign.jpg'
+                }));
+              }}
+              className="w-full px-2.5 py-2 border border-slate-300 rounded-lg bg-slate-50 text-xs font-semibold text-slate-700"
+            >
+              <option value="sunil">Sunil Lenka</option>
+              <option value="biranchi">Biranchi Mahapatra</option>
+            </select>
           </div>
         </div>
       </div>

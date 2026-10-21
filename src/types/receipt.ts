@@ -3,6 +3,7 @@ export type RelationType = 'ପିତା (Father)' | 'ମାତା (Mother)' | '
 export type PaymentMode = '' | 'ନଗଦ' | 'ଅନଲାଇନ୍' | 'ଚେକ୍';
 
 export type IdType = 'ପ୍ୟାନ୍' | 'ଆଧାର' | 'ଭୋଟ ପରିଚୟ' | 'ଅନ୍ୟାନ୍ୟ';
+export type Signatory = 'sunil' | 'biranchi';
 
 export interface OrgDetails {
   name: string;
@@ -15,6 +16,7 @@ export interface OrgDetails {
   phones_eng: string;
   logoUrl: string;
   signatureUrl: string;
+  signatory: Signatory;
 }
 
 export interface DonorDetails {

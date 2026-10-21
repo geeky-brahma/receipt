@@ -14,7 +14,8 @@ export const DEFAULT_ORG_DETAILS: OrgDetails = {
   phones: '୯୪୩୭୩୫୩୦୪୦ / ୯୭୭୭୮୮୭୪୫୯',
   phones_eng: '9437353040 / 9777887459',
   logoUrl: DEFAULT_JAGANNATH_LOGO,
-  signatureUrl: '/sign.jpg'
+  signatureUrl: '/sunil_sign.jpg',
+  signatory: 'sunil'
 };
 
 export const ANUDAN_OPTIONS = [
