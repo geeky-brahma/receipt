@@ -6,7 +6,7 @@ interface PasswordModalProps {
   onSuccess: () => void;
 }
 
-const SITE_PASSWORD = 'GaroiJagannath@26';
+const SITE_PASSWORD = 'GaroiSJS@26';
 
 export const PasswordModal: React.FC<PasswordModalProps> = ({
   isOpen,
