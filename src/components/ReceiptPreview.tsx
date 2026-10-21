@@ -158,7 +158,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
           <div className="grid grid-cols-[62%_38%] gap-4">
             <div>
               <p className="text-[18px] font-black text-slate-900 uppercase tracking-wide leading-tight break-words">
-                {donor.name || 'ଦାତାଙ୍କ ନାମ (Donor Name)'}
+                ଦାତାଙ୍କ ନାମ (Donor Name): {donor.name || 'ଦାତାଙ୍କ ନାମ (Donor Name)'}
               </p>
               
               <p className="text-slate-800 text-[14px] mt-1 font-medium">
@@ -190,11 +190,11 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
             <div className="text-right flex flex-col justify-between items-end space-y-1.5 border-l border-orange-200/80 pl-4">
               <div className="space-y-1 w-full text-right">
                 <p className="text-slate-800 text-[13px]">
-                  <span className="text-slate-500 font-semibold text-xs uppercase mr-1">ମୋବାଇଲ୍:</span>
+                  <span className="text-slate-500 font-semibold text-xs uppercase mr-1">ମୋବାଇଲ୍ / MOBILE:</span>
                   <span className="font-bold text-slate-900">{donor.phone || '—'}</span>
                 </p>
                 <p className="text-slate-800 text-[12px] truncate max-w-[240px]">
-                  <span className="text-slate-500 font-semibold text-xs uppercase mr-1">ଇମେଲ୍‌:</span>
+                  <span className="text-slate-500 font-semibold text-xs uppercase mr-1">ଇମେଲ୍‌ / EMAIL:</span>
                   <span className="font-medium text-slate-800">{donor.email || '—'}</span>
                 </p>
               </div>
@@ -352,6 +352,9 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
           </p>
           <p className="text-[11px] text-slate-700 font-bold mt-1">
             ଯୋଗାଯୋଗ ନଂ - {org.phones}
+          </p>
+          <p className="text-[11px] text-slate-700 font-bold mt-1">
+            (MOBILE NUMBERS - {org.phones_eng})
           </p>
         </div>
 
