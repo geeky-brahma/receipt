@@ -158,7 +158,7 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
           <div className="grid grid-cols-[62%_38%] gap-4">
             <div>
               <p className="text-[18px] font-black text-slate-900 uppercase tracking-wide leading-tight break-words">
-                ଦାତାଙ୍କ ନାମ (Donor Name): {donor.name || 'ଦାତାଙ୍କ ନାମ (Donor Name)'}
+                ନାମ (Name): {donor.name || 'ଦାତାଙ୍କ ନାମ (Donor Name)'}
               </p>
               
               <p className="text-slate-800 text-[14px] mt-1 font-medium">
