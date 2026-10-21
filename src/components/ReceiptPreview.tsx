@@ -163,10 +163,10 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
               
               <p className="text-slate-800 text-[14px] mt-1 font-medium">
                 <span className="text-slate-500 font-semibold text-xs uppercase mr-1">
-                  {donor.relationType}:
+                  {donor.relationType || 'ସମ୍ପର୍କ (Relation)'}:
                 </span>
                 <span className="font-semibold text-slate-800">
-                  {donor.relationName || '—'}
+                  {donor.relationName || '-'}
                 </span>
               </p>
 

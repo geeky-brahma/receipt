@@ -42,7 +42,7 @@ export const DAAN_OPTIONS = [
 
 export const SAMPLE_DONOR: DonorDetails = {
   name: 'ସୁଶାନ୍ତ କୁମାର ମହାପାତ୍ର',
-  relationType: 'ପିତା',
+  relationType: 'ପିତା (Father)',
   relationName: 'ବସନ୍ତ କୁମାର ମହାପାତ୍ର',
   address: 'ପ୍ଲଟ ନଂ - ୪୫, ସହିଦ ନଗର, ଭୁବନେଶ୍ୱର, ଓଡ଼ିଶା - ୭୫୧୦୦୭',
   gotra: 'କାଶ୍ୟପ (Kashyapa)',

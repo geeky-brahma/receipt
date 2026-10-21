@@ -94,7 +94,7 @@ export default function App() {
   // 3. Donor State
   const [donor, setDonor] = useState<DonorDetails>(savedDraft?.donor || {
     name: '',
-    relationType: 'ପିତା',
+    relationType: null,
     relationName: '',
     address: '',
     gotra: '',
@@ -400,7 +400,7 @@ export default function App() {
   const handleNewReceipt = () => {
     setDonor({
       name: '',
-      relationType: 'ପିତା',
+      relationType: null,
       relationName: '',
       address: '',
       gotra: '',

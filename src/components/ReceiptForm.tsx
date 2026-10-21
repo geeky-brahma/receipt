@@ -467,15 +467,21 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           <div className="w-28 shrink-0">
             <label className="text-[11px] text-slate-500 font-bold block mb-1">ସମ୍ପର୍କ (Relation)</label>
             <select
-              value={donor.relationType}
-              onChange={(e) => setDonor({ ...donor, relationType: e.target.value as RelationType })}
+              value={donor.relationType || ''}
+              onChange={(e) =>
+                setDonor({
+                  ...donor,
+                  relationType: e.target.value ? (e.target.value as RelationType) : null
+                })
+              }
               className="w-full px-2.5 py-2 border border-slate-300 rounded-lg bg-slate-50 text-xs font-semibold text-slate-700"
             >
-              <option value="ପିତା">ପିତା (S/o, D/o)</option>
-              <option value="ମାତା">ମାତା (Mother)</option>
-              <option value="ପତ୍ନୀ">ପତ୍ନୀ (W/o)</option>
-              <option value="ସ୍ଵାମୀ">ସ୍ଵାମୀ (H/o)</option>
-              <option value="ମାର୍ଫତ">ମାର୍ଫତ (C/o)</option>
+              <option value="">Select relation</option>
+              <option value="ପିତା (Father)">ପିତା (Father)</option>
+              <option value="ମାତା (Mother)">ମାତା (Mother)</option>
+              <option value="ପତ୍ନୀ (Wife)">ପତ୍ନୀ (Wife)</option>
+              <option value="ସ୍ଵାମୀ (Husband)">ସ୍ଵାମୀ (Husband)</option>
+              <option value="ମାର୍ଫତ (Child)">ମାର୍ଫତ (Child)</option>
             </select>
           </div>
           <div className="flex-1">

@@ -1,4 +1,4 @@
-export type RelationType = 'ପିତା' | 'ମାତା' | 'ପତ୍ନୀ' | 'ସ୍ଵାମୀ' | 'ମାର୍ଫତ';
+export type RelationType = 'ପିତା (Father)' | 'ମାତା (Mother)' | 'ପତ୍ନୀ (Wife)' | 'ସ୍ଵାମୀ (Husband)' | 'ମାର୍ଫତ (Child)';
 
 export type PaymentMode = '' | 'ନଗଦ' | 'ଅନଲାଇନ୍' | 'ଚେକ୍';
 
@@ -19,7 +19,7 @@ export interface OrgDetails {
 
 export interface DonorDetails {
   name: string;
-  relationType: RelationType;
+  relationType: null | RelationType;
   relationName: string;
   address: string;
   gotra: string;
