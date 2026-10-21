@@ -21,7 +21,6 @@ import { PasswordModal } from './components/PasswordModal';
 import { ReceiptPreview } from './components/ReceiptPreview';
 import { ReceiptForm } from './components/ReceiptForm';
 import { ReceiptHistoryModal } from './components/ReceiptHistoryModal';
-import { SignaturePadModal } from './components/SignaturePadModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
 import { receiptApi } from './utils/receiptApi';
 import {
@@ -82,19 +81,20 @@ export default function App() {
       savedLogo = null;
       localStorage.removeItem('sansad_savedLogo');
     }
-    const savedSig = localStorage.getItem('sansad_savedSignature');
+    const savedSignatory = savedDraft?.org.signatory || DEFAULT_ORG_DETAILS.signatory;
     return {
       ...DEFAULT_ORG_DETAILS,
       ...(savedDraft?.org || {}),
       logoUrl: savedLogo || savedDraft?.org.logoUrl || DEFAULT_ORG_DETAILS.logoUrl,
-      signatureUrl: savedSig || savedDraft?.org.signatureUrl || DEFAULT_ORG_DETAILS.signatureUrl
+      signatory: savedSignatory,
+      signatureUrl: savedSignatory === 'biranchi' ? '/biranchi_sign.png' : '/sunil_sign.jpg'
     };
   });
 
   // 3. Donor State
   const [donor, setDonor] = useState<DonorDetails>(savedDraft?.donor || {
     name: '',
-    relationType: 'ପିତା',
+    relationType: null,
     relationName: '',
     address: '',
     gotra: '',
@@ -134,7 +134,6 @@ export default function App() {
 
   // 6. UI Modals & Notifications
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isSignaturePadOpen, setIsSignaturePadOpen] = useState(false);
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -400,7 +399,7 @@ export default function App() {
   const handleNewReceipt = () => {
     setDonor({
       name: '',
-      relationType: 'ପିତା',
+      relationType: null,
       relationName: '',
       address: '',
       gotra: '',
@@ -432,17 +431,6 @@ export default function App() {
       <PasswordModal
         isOpen={!isUnlocked}
         onSuccess={() => setIsUnlocked(true)}
-      />
-
-      {/* Signature Pad Modal */}
-      <SignaturePadModal
-        isOpen={isSignaturePadOpen}
-        onClose={() => setIsSignaturePadOpen(false)}
-        onSave={(dataUrl) => {
-          setOrg((prev) => ({ ...prev, signatureUrl: dataUrl }));
-          localStorage.setItem('sansad_savedSignature', dataUrl);
-          showToast('✍️ Signature saved.');
-        }}
       />
 
       {/* History Register Modal */}
@@ -566,7 +554,6 @@ export default function App() {
             onGeneratePdf={handleGeneratePdf}
             onDirectPrint={handleDirectPrint}
             onSaveToHistory={handleSaveToHistory}
-            onOpenSignaturePad={() => setIsSignaturePadOpen(true)}
             onFillSample={handleFillSample}
             onShareWhatsApp={() => setIsWhatsAppOpen(true)}
             isGeneratingPdf={isGeneratingPdf}

@@ -87,7 +87,7 @@ function valuesToRecord_(row) {
     createdAt: String(row[3] || ''),
     donor: {
       name: String(row[4] || ''),
-      relationType: row[5] || 'ପିତା',
+      relationType: row[5] || null,
       relationName: String(row[6] || ''),
       address: String(row[7] || ''),
       gotra: String(row[8] || ''),

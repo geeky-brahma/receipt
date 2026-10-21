@@ -14,7 +14,8 @@ export const DEFAULT_ORG_DETAILS: OrgDetails = {
   phones: '୯୪୩୭୩୫୩୦୪୦ / ୯୭୭୭୮୮୭୪୫୯',
   phones_eng: '9437353040 / 9777887459',
   logoUrl: DEFAULT_JAGANNATH_LOGO,
-  signatureUrl: '/sign.jpg'
+  signatureUrl: '/sunil_sign.jpg',
+  signatory: 'sunil'
 };
 
 export const ANUDAN_OPTIONS = [
@@ -42,7 +43,7 @@ export const DAAN_OPTIONS = [
 
 export const SAMPLE_DONOR: DonorDetails = {
   name: 'ସୁଶାନ୍ତ କୁମାର ମହାପାତ୍ର',
-  relationType: 'ପିତା',
+  relationType: 'ପିତା (Father)',
   relationName: 'ବସନ୍ତ କୁମାର ମହାପାତ୍ର',
   address: 'ପ୍ଲଟ ନଂ - ୪୫, ସହିଦ ନଗର, ଭୁବନେଶ୍ୱର, ଓଡ଼ିଶା - ୭୫୧୦୦୭',
   gotra: 'କାଶ୍ୟପ (Kashyapa)',

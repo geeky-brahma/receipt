@@ -48,7 +48,7 @@ Reg: ${org.regNo} | PAN: ${org.panNo}
 • *ରସିଦ୍ ନଂ:* ${transaction.receiptNo}
 • *ତାରିଖ:* ${formatIndianDate(transaction.date)}
 • *ଦାତାଙ୍କ ନାମ:* ${donor.name || 'ମହାଶୟ/ମହାଶୟା'}
-• *ସମ୍ପର୍କ:* ${donor.relationType}: ${donor.relationName || '—'}
+• *ସମ୍ପର୍କ:* ${donor.relationType || '—'}: ${donor.relationName || '—'}
 • *ଗୋତ୍ର:* ${donor.gotra || '—'}
 • *ଦାଖଲ ପରିମାଣ:* ${odiaAmount} (${formatINR(transaction.amount)})
 • *ଅକ୍ଷରରେ:* ${odiaWords}
