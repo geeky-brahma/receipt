@@ -23,6 +23,7 @@ import { ReceiptForm } from './components/ReceiptForm';
 import { ReceiptHistoryModal } from './components/ReceiptHistoryModal';
 import { SignaturePadModal } from './components/SignaturePadModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
+import { receiptApi } from './utils/receiptApi';
 import {
   History,
   Lock,
@@ -34,11 +35,20 @@ import {
   Sparkles,
   CheckCircle,
   Shield,
-  RotateCcw
+  RotateCcw,
+  LoaderCircle
 } from 'lucide-react';
 
 const AUTO_LOCK_DELAY = 10 * 60 * 1000;
 const DRAFT_STORAGE_KEY = 'sansad_receipt_draft';
+
+const getNextReceiptNo = (records: ReceiptRecord[]): string => {
+  const highestNumber = records.reduce((highest, record) => {
+    const match = record.receiptNo.match(/^SJS-(\d+)$/i);
+    return match ? Math.max(highest, Number(match[1])) : highest;
+  }, 0);
+  return `SJS-${String(highestNumber + 1).padStart(3, '0')}`;
+};
 
 interface ReceiptDraft {
   org: OrgDetails;
@@ -99,7 +109,7 @@ export default function App() {
     receiptNo: `SJS-${Math.floor(100 + Math.random() * 900)}`,
     date: new Date().toISOString().split('T')[0],
     amount: 0,
-    mode: 'ନଗଦ',
+    mode: '',
     txnId: '',
     selectedAnudan: [],
     selectedDaan: [],
@@ -119,6 +129,8 @@ export default function App() {
       return [];
     }
   });
+  const [isSyncingRecords, setIsSyncingRecords] = useState(false);
+  const [isSavingRecord, setIsSavingRecord] = useState(false);
 
   // 6. UI Modals & Notifications
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -136,6 +148,50 @@ export default function App() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    let isMounted = true;
+    const syncRecords = async (updateNextReceiptNumber = false) => {
+      setIsSyncingRecords(true);
+      try {
+        await receiptApi.syncPending();
+        const sharedRecords = await receiptApi.list();
+        const pendingRecords = receiptApi.getPending();
+        const pendingIds = new Set(pendingRecords.map((record) => record.id));
+        const syncedRecords = [
+          ...pendingRecords,
+          ...sharedRecords.filter((record) => !pendingIds.has(record.id))
+        ];
+        if (isMounted) {
+          setRecords(syncedRecords);
+          localStorage.setItem('sansad_receipt_records', JSON.stringify(syncedRecords));
+          if (updateNextReceiptNumber) {
+            setTransaction((previous) => ({
+              ...previous,
+              receiptNo: getNextReceiptNo(syncedRecords)
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Google Sheets sync failed:', error);
+        if (isMounted) {
+          const message = error instanceof Error ? error.message : 'Google Sheet unavailable.';
+          showToast(`⚠️ ${message} Pending receipts remain saved on this device.`);
+        }
+      } finally {
+        if (isMounted) setIsSyncingRecords(false);
+      }
+    };
+    void syncRecords(true);
+    const syncInterval = window.setInterval(() => void syncRecords(), 30_000);
+    const handleOnline = () => void syncRecords();
+    window.addEventListener('online', handleOnline);
+    return () => {
+      isMounted = false;
+      window.clearInterval(syncInterval);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
 
   const saveDraft = () => {
     const draft: ReceiptDraft = {
@@ -191,26 +247,46 @@ export default function App() {
   const currentScale = manualZoom !== null ? manualZoom : autoScale;
 
   // Save to Receipt Register
-  const handleSaveToHistory = () => {
+  const handleSaveToHistory = async (): Promise<boolean> => {
+    if (isSavingRecord) return false;
+
     if (!donor.name.trim() && transaction.amount === 0) {
       showToast('⚠️ Please enter donor name or amount before saving.');
-      return;
+      return false;
     }
 
+    const receiptNo = getNextReceiptNo(records);
+    const transactionToSave = { ...transaction, receiptNo };
+    setTransaction(transactionToSave);
     const newRecord: ReceiptRecord = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      receiptNo: transaction.receiptNo || `SJS-${Date.now().toString().slice(-4)}`,
-      date: transaction.date,
+      receiptNo,
+      date: transactionToSave.date,
       createdAt: new Date().toISOString(),
       donor: { ...donor },
-      transaction: { ...transaction },
-      totalAmount: transaction.amount
+      transaction: transactionToSave,
+      totalAmount: transactionToSave.amount
     };
 
-    const updated = [newRecord, ...records];
-    setRecords(updated);
-    localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
-    showToast(`✅ ରସିଦ୍ ${newRecord.receiptNo} ସଫଳତାର ସହିତ ସଞ୍ଚିତ ହେଲା!`);
+    try {
+      setIsSavingRecord(true);
+      receiptApi.queueSave(newRecord);
+      await receiptApi.syncPending();
+      const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
+      setRecords(updated);
+      localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
+      showToast(`✅ ରସିଦ୍ ${newRecord.receiptNo} ସଫଳତାର ସହିତ ସଞ୍ଚିତ ହେଲା!`);
+      return true;
+    } catch (error) {
+      console.error('Google Sheets save failed:', error);
+      const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
+      setRecords(updated);
+      localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
+      showToast('📥 Saved on this device. It will sync to Google Sheets when internet returns.');
+      return true;
+    } finally {
+      setIsSavingRecord(false);
+    }
   };
 
   // Load Record from History
@@ -221,18 +297,36 @@ export default function App() {
   };
 
   // Delete Record from History
-  const handleDeleteRecord = (id: string) => {
-    const updated = records.filter((r) => r.id !== id);
-    setRecords(updated);
-    localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
-    showToast('Record deleted.');
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      setIsSyncingRecords(true);
+      await receiptApi.remove(id);
+      const updated = records.filter((r) => r.id !== id);
+      setRecords(updated);
+      localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
+      showToast('Record deleted from Google Sheets.');
+    } catch (error) {
+      console.error('Google Sheets delete failed:', error);
+      showToast('❌ Could not delete the record from Google Sheets.');
+    } finally {
+      setIsSyncingRecords(false);
+    }
   };
 
   // Clear All Records
-  const handleClearAllRecords = () => {
-    setRecords([]);
-    localStorage.removeItem('sansad_receipt_records');
-    showToast('All records cleared.');
+  const handleClearAllRecords = async () => {
+    try {
+      setIsSyncingRecords(true);
+      await receiptApi.clear();
+      setRecords([]);
+      localStorage.removeItem('sansad_receipt_records');
+      showToast('All records cleared from Google Sheets.');
+    } catch (error) {
+      console.error('Google Sheets clear failed:', error);
+      showToast('❌ Could not clear Google Sheets records.');
+    } finally {
+      setIsSyncingRecords(false);
+    }
   };
 
   // High Resolution PDF Generation via html-to-image & jspdf
@@ -277,9 +371,11 @@ export default function App() {
       const fileName = `${transaction.receiptNo || 'Receipt'}_Donation.pdf`;
       pdf.save(fileName);
 
-      // Auto save to history
-      handleSaveToHistory();
-      showToast(`📄 PDF ଡାଉନଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ: ${fileName}`);
+      // Save the same receipt details to the shared register before completing the action.
+      const saved = await handleSaveToHistory();
+      if (saved) {
+        showToast(`📄 PDF ଡାଉନଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ: ${fileName}`);
+      }
     } catch (err) {
       console.error('PDF Generation Error:', err);
       showToast('❌ Failed to generate PDF. You can also use the Direct Print button.');
@@ -314,10 +410,10 @@ export default function App() {
       email: ''
     });
     setTransaction({
-      receiptNo: `SJS-${Math.floor(100 + Math.random() * 900)}`,
+      receiptNo: getNextReceiptNo(records),
       date: new Date().toISOString().split('T')[0],
       amount: 0,
-      mode: 'ନଗଦ',
+      mode: '',
       txnId: '',
       selectedAnudan: [],
       selectedDaan: [],
@@ -372,6 +468,18 @@ export default function App() {
       {toastMessage && (
         <div className="fixed top-4 right-4 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-bold border border-slate-700 animate-in fade-in slide-in-from-top-3 flex items-center gap-2">
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {isSavingRecord && (
+        <div className="fixed inset-0 z-[60] bg-slate-950/45 backdrop-blur-[2px] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-emerald-200 px-7 py-6 flex flex-col items-center gap-3 text-center">
+            <LoaderCircle className="w-10 h-10 text-emerald-700 animate-spin" />
+            <div>
+              <p className="font-black text-slate-800">Saving receipt</p>
+              <p className="text-sm text-slate-500 mt-1">Syncing details with Google Sheets...</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -462,6 +570,7 @@ export default function App() {
             onFillSample={handleFillSample}
             onShareWhatsApp={() => setIsWhatsAppOpen(true)}
             isGeneratingPdf={isGeneratingPdf}
+            isSavingRecord={isSavingRecord}
           />
         </section>
 

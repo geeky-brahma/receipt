@@ -35,11 +35,12 @@ interface ReceiptFormProps {
   setOrg: React.Dispatch<React.SetStateAction<OrgDetails>>;
   onGeneratePdf: () => void;
   onDirectPrint: () => void;
-  onSaveToHistory: () => void;
+  onSaveToHistory: () => void | Promise<void | boolean>;
   onOpenSignaturePad: () => void;
   onFillSample: () => void;
   onShareWhatsApp: () => void;
   isGeneratingPdf: boolean;
+  isSavingRecord: boolean;
 }
 
 const AMOUNT_PRESETS = [101, 251, 501, 1001, 2101, 5001, 11000, 21000];
@@ -66,7 +67,8 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   onOpenSignaturePad,
   onFillSample,
   onShareWhatsApp,
-  isGeneratingPdf
+  isGeneratingPdf,
+  isSavingRecord
 }) => {
   const [isEditingOrg, setIsEditingOrg] = useState(false);
 
@@ -370,9 +372,10 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
               }
               className="w-full px-3 py-2.5 border border-slate-300 rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-orange-400 outline-none"
             >
-              <option value="ନଗଦ">ନଗଦ (Cash)</option>
-              <option value="ଅନଲାଇନ୍">ଅନଲାଇନ୍ (Online / UPI)</option>
-              <option value="ଚେକ୍">ଚେକ୍ (Cheque)</option>
+              <option value="">Select an option</option>
+              <option value="ନଗଦ (Cash)">ନଗଦ (Cash)</option>
+              <option value="ଅନଲାଇନ୍ (Online / UPI)">ଅନଲାଇନ୍ (Online / UPI)</option>
+              <option value="ଚେକ୍ (Cheque)">ଚେକ୍ (Cheque)</option>
             </select>
           </div>
         </div>
@@ -715,7 +718,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
         {/* PDF Download Button */}
         <button
           type="button"
-          disabled={isGeneratingPdf}
+          disabled={isGeneratingPdf || isSavingRecord}
           onClick={onGeneratePdf}
           className="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-extrabold py-3.5 px-4 rounded-xl transition shadow-lg shadow-red-600/30 flex justify-center items-center gap-2 border border-red-800 disabled:opacity-75 active:scale-[0.99]"
         >
@@ -747,11 +750,21 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           <button
             type="button"
             onClick={onSaveToHistory}
-            className="py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow"
+            disabled={isSavingRecord}
+            className="py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-70 disabled:cursor-wait text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow"
             title="Save this receipt to internal register"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-            <span>ସଞ୍ଚୟ (Save)</span>
+            {isSavingRecord ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-emerald-200" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                <span>ସଞ୍ଚୟ (Save)</span>
+              </>
+            )}
           </button>
 
           <button

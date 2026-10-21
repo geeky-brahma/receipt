@@ -1,6 +1,6 @@
 export type RelationType = 'ପିତା' | 'ମାତା' | 'ପତ୍ନୀ' | 'ସ୍ଵାମୀ' | 'ମାର୍ଫତ';
 
-export type PaymentMode = 'ନଗଦ' | 'ଅନଲାଇନ୍' | 'ଚେକ୍';
+export type PaymentMode = '' | 'ନଗଦ' | 'ଅନଲାଇନ୍' | 'ଚେକ୍';
 
 export type IdType = 'ପ୍ୟାନ୍' | 'ଆଧାର' | 'ଭୋଟ ପରିଚୟ' | 'ଅନ୍ୟାନ୍ୟ';
 
