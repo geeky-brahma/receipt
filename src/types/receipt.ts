@@ -12,6 +12,7 @@ export interface OrgDetails {
   regNo: string;
   panNo: string;
   phones: string;
+  phones_eng: string;
   logoUrl: string;
   signatureUrl: string;
 }

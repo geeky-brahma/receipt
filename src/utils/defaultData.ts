@@ -12,6 +12,7 @@ export const DEFAULT_ORG_DETAILS: OrgDetails = {
   regNo: '20,151/115',
   panNo: 'AANAS6423R',
   phones: '୯୪୩୭୩୫୩୦୪୦ / ୯୭୭୭୮୮୭୪୫୯',
+  phones_eng: '9437353040 / 9777887459',
   logoUrl: DEFAULT_JAGANNATH_LOGO,
   signatureUrl: '/sign.jpg'
 };
