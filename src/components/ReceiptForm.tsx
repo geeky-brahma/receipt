@@ -463,7 +463,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
               <option value="ମାତା (Mother)">ମାତା (Mother)</option>
               <option value="ପତ୍ନୀ (Wife)">ପତ୍ନୀ (Wife)</option>
               <option value="ସ୍ଵାମୀ (Husband)">ସ୍ଵାମୀ (Husband)</option>
-              <option value="ମାର୍ଫତ (Child)">ମାର୍ଫତ (Child)</option>
+              <option value="ମାର୍ଫତ (C/O)">ମାର୍ଫତ (C/O)</option>
             </select>
           </div>
           <div className="flex-1">
