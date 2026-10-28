@@ -41,12 +41,34 @@ import {
 const AUTO_LOCK_DELAY = 10 * 60 * 1000;
 const DRAFT_STORAGE_KEY = 'sansad_receipt_draft';
 
+const getCurrentMonthKey = () => {
+  const now = new Date();
+  return `${String(now.getMonth() + 1)}${String(now.getFullYear()).slice(-2)}`;
+};
+
 const getNextReceiptNo = (records: ReceiptRecord[]): string => {
-  const highestNumber = records.reduce((highest, record) => {
-    const match = record.receiptNo.match(/^SJS-(\d+)$/i);
-    return match ? Math.max(highest, Number(match[1])) : highest;
+  const monthPrefix = getCurrentMonthKey();
+  const currentMonthRecords = records.filter((record) => {
+    const match = record.receiptNo.match(/^SJS-(\d{1,2})(\d{2})\/(\d+)$/i);
+    if (!match) return false;
+    const [, month, year, serial] = match;
+    return `${month}${year}` === monthPrefix && !Number.isNaN(Number(serial));
+  });
+
+  const highestSerial = currentMonthRecords.reduce((highest, record) => {
+    const match = record.receiptNo.match(/^SJS-(\d{1,2})(\d{2})\/(\d+)$/i);
+    if (!match) return highest;
+    return Math.max(highest, Number(match[3]));
   }, 0);
-  return `SJS-${String(highestNumber + 1).padStart(3, '0')}`;
+
+  const nextSerial = highestSerial + 1;
+  return `SJS-${monthPrefix}/${nextSerial}`;
+};
+
+const getReceiptMonthKey = (receiptNo: string): string | null => {
+  const match = receiptNo.match(/^SJS-(\d{1,2})(\d{2})\/(\d+)$/i);
+  if (!match) return null;
+  return `${match[1]}${match[2]}`;
 };
 
 interface ReceiptDraft {
@@ -106,7 +128,7 @@ export default function App() {
 
   // 4. Transaction State
   const [transaction, setTransaction] = useState<TransactionDetails>(() => ({
-    receiptNo: `SJS-${Math.floor(100 + Math.random() * 900)}`,
+    receiptNo: getNextReceiptNo([]),
     date: new Date().toISOString().split('T')[0],
     amount: 0,
     mode: '',
@@ -116,6 +138,7 @@ export default function App() {
     customSeva: '',
     sevaDate: '',
     showUpiQr: false,
+    signatory: savedDraft?.transaction.signatory || (savedDraft?.org?.signatory ?? DEFAULT_ORG_DETAILS.signatory),
     ...savedDraft?.transaction,
     anudanPurpose: savedDraft?.transaction.anudanPurpose || ''
   }));
@@ -255,7 +278,8 @@ export default function App() {
     }
 
     const receiptNo = getNextReceiptNo(records);
-    const transactionToSave = { ...transaction, receiptNo };
+    const signatory = transaction.signatory || org.signatory;
+    const transactionToSave = { ...transaction, receiptNo, signatory };
     setTransaction(transactionToSave);
     const newRecord: ReceiptRecord = {
       id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -264,7 +288,8 @@ export default function App() {
       createdAt: new Date().toISOString(),
       donor: { ...donor },
       transaction: transactionToSave,
-      totalAmount: transactionToSave.amount
+      totalAmount: transactionToSave.amount,
+      signatory
     };
 
     try {
@@ -290,8 +315,18 @@ export default function App() {
 
   // Load Record from History
   const handleLoadRecord = (record: ReceiptRecord) => {
+    const signatory = record.signatory || record.transaction.signatory || org.signatory;
     setDonor({ ...record.donor });
-    setTransaction({ ...record.transaction });
+    setTransaction({
+      ...record.transaction,
+      signatory,
+      receiptNo: record.receiptNo
+    });
+    setOrg((prev) => ({
+      ...prev,
+      signatory,
+      signatureUrl: signatory === 'biranchi' ? '/biranchi_sign.png' : '/sunil_sign.jpg'
+    }));
     showToast(`📂 Loaded receipt ${record.receiptNo}`);
   };
 
@@ -419,7 +454,8 @@ export default function App() {
       anudanPurpose: '',
       customSeva: '',
       sevaDate: '',
-      showUpiQr: false
+      showUpiQr: false,
+      signatory: org.signatory
     });
     showToast('✨ New blank receipt created.');
   };

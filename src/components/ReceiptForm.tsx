@@ -104,8 +104,16 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   };
 
   const generateNextReceiptNo = () => {
-    const random = Math.floor(100 + Math.random() * 900);
-    setTransaction((prev) => ({ ...prev, receiptNo: `SJS-${random}` }));
+    const now = new Date();
+    const monthKey = `${String(now.getMonth() + 1)}${now.getFullYear()}`;
+    setTransaction((prev) => {
+      const match = prev.receiptNo.match(/^SJS-(\d{1,2})(\d{4})\/(\d+)$/i);
+      const existingSerial = match && `${match[1]}${match[2]}` === monthKey ? Number(match[3]) : 0;
+      return {
+        ...prev,
+        receiptNo: `SJS-${monthKey}/${existingSerial + 1}`
+      };
+    });
   };
 
   return (
@@ -256,6 +264,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
                   signatory,
                   signatureUrl: signatory === 'biranchi' ? '/biranchi_sign.png' : '/sunil_sign.jpg'
                 }));
+                setTransaction((prev) => ({ ...prev, signatory }));
               }}
               className="w-full px-2.5 py-2 border border-slate-300 rounded-lg bg-slate-50 text-xs font-semibold text-slate-700"
             >

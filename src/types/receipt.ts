@@ -43,6 +43,7 @@ export interface TransactionDetails {
   customSeva: string;
   sevaDate: string;
   showUpiQr: boolean;
+  signatory?: Signatory;
 }
 
 export interface ReceiptRecord {
@@ -53,4 +54,5 @@ export interface ReceiptRecord {
   donor: DonorDetails;
   transaction: TransactionDetails;
   totalAmount: number;
+  signatory?: Signatory;
 }
