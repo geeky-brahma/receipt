@@ -4,7 +4,7 @@ export const RECEIPT_OUTBOX_STORAGE_KEY = 'sansad_receipt_outbox';
 
 const GOOGLE_SHEETS_URL =
   import.meta.env.VITE_GOOGLE_SHEETS_WEB_APP_URL ||
-  'https://script.google.com/macros/s/AKfycbxcuJwbW0tYVUMt6on90oaQbU3KBKfqnnBkGraZkrndotHSxMQq0pVEdwwCkgVwHqHe/exec';
+  'https://script.google.com/macros/s/AKfycbw7isDVvUjFbD59LB6BqdoVgmgjIsoGKrWsWdn0yzWLDBpLFZfFEMhWtQqXfCr45dIZ/exec';
 
 interface GoogleSheetsResponse {
   records?: ReceiptRecord[];
