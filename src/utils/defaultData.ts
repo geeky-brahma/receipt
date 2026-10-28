@@ -54,7 +54,7 @@ export const SAMPLE_DONOR: DonorDetails = {
 };
 
 export const SAMPLE_TRANSACTION: TransactionDetails = {
-  receiptNo: 'SJS-786',
+  receiptNo: `SJS-${String(new Date().getMonth() + 1)}${String(new Date().getFullYear()).slice(-2)}/1`,
   date: new Date().toISOString().split('T')[0],
   amount: 2501,
   mode: 'ଅନଲାଇନ୍',
@@ -64,5 +64,6 @@ export const SAMPLE_TRANSACTION: TransactionDetails = {
   anudanPurpose: '',
   customSeva: '',
   sevaDate: 'କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା (Kartika Purnima)',
-  showUpiQr: false
+  showUpiQr: false,
+  signatory: 'sunil'
 };

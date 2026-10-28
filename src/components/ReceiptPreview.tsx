@@ -16,6 +16,11 @@ interface ReceiptPreviewProps {
   id?: string;
 }
 
+const getSignatureUrlForSignatory = (signatory?: string) => {
+  if (signatory === 'biranchi') return '/biranchi_sign.png';
+  return '/sunil_sign.jpg';
+};
+
 export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
   donor,
   transaction,
@@ -49,6 +54,8 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
   const amountInOdiaDigits = formatAmountInOdia(transaction.amount);
   const amountInEnglish = formatINR(transaction.amount);
   const receiptNoOdia = toOdiaDigits(transaction.receiptNo);
+  const resolvedSignatory = transaction.signatory || org.signatory;
+  const signatureUrl = getSignatureUrlForSignatory(resolvedSignatory);
 
   return (
     <div
@@ -360,10 +367,10 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
 
         {/* Right: Signature & Trust Seal */}
         <div className="w-[38%] text-center flex flex-col items-center justify-end min-h-[110px]">
-          {org.signatureUrl ? (
+          {signatureUrl ? (
             <div className="relative h-[66px] w-[236px] flex items-center justify-center mb-1">
               <img
-                src={org.signatureUrl}
+                src={signatureUrl}
                 alt="Authorized Signatory"
                 className="h-[60px] w-[220px] object-contain"
                 crossOrigin="anonymous"

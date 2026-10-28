@@ -23,6 +23,7 @@ const HEADERS = [
   'Custom Seva',
   'Seva Date',
   'Show UPI QR',
+  'Signatory',
   'Total Amount'
 ];
 
@@ -79,6 +80,7 @@ function valuesToRecord_(row) {
   const amount = Number(row[13]) || 0;
   const receiptNo = String(row[1] || '');
   const date = String(row[2] || '');
+  const signatory = row[22] || 'sunil';
 
   return {
     id: String(row[0] || ''),
@@ -107,9 +109,11 @@ function valuesToRecord_(row) {
       anudanPurpose: String(row[18] || ''),
       customSeva: String(row[19] || ''),
       sevaDate: String(row[20] || ''),
-      showUpiQr: row[21] === true || String(row[21]).toLowerCase() === 'true'
+      showUpiQr: row[21] === true || String(row[21]).toLowerCase() === 'true',
+      signatory: signatory
     },
-    totalAmount: Number(row[22]) || amount
+    totalAmount: Number(row[23]) || amount,
+    signatory: signatory
   };
 }
 
@@ -123,6 +127,7 @@ function splitList_(value) {
 function rowToValues_(record) {
   const donor = record.donor || {};
   const transaction = record.transaction || {};
+  const signatory = record.signatory || transaction.signatory || 'sunil';
   return [
     record.id || '',
     record.receiptNo || transaction.receiptNo || '',
@@ -146,6 +151,7 @@ function rowToValues_(record) {
     transaction.customSeva || '',
     transaction.sevaDate || '',
     transaction.showUpiQr === true,
+    signatory,
     Number(record.totalAmount) || Number(transaction.amount) || 0
   ];
 }
