@@ -243,6 +243,11 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(({
                       <span className="font-bold text-slate-600 uppercase text-[12px] tracking-wider mr-1">
                         କେଉଁ ବାବଦକୁ (Purpose):
                       </span>
+                      {transaction.anudanType && (
+                        <span className="inline-block font-bold text-orange-900 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 text-[12px] mr-1.5">
+                          {transaction.anudanType}
+                        </span>
+                      )}
                       <span className="font-semibold text-slate-950">
                         {dhupaItems.map((item) => (
                           <span key={item} className="block">
