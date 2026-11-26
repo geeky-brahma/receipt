@@ -1,4 +1,4 @@
-import { DonorDetails, OrgDetails, TransactionDetails } from '../types/receipt';
+import { AnudanType, DonorDetails, OrgDetails, TransactionDetails } from '../types/receipt';
 import { SHREE_LOGO_IMAGE_DATA } from './logoImage';
 
 // Official Sri Jagannath Sansad "images.jpg" user-uploaded image as base64 data URL
@@ -25,6 +25,30 @@ export const ANUDAN_OPTIONS = [
   'ପଣା ଧୂପ',
   'ଚାରିଧୁପ'
 ];
+
+export const ANUDAN_TYPE_OPTIONS: { value: AnudanType; label: string }[] = [
+  { value: 'ସାମୟିକ', label: 'ସାମୟିକ' },
+  { value: 'ସ୍ଥାୟୀ', label: 'ସ୍ଥାୟୀ' }
+];
+
+export const ANUDAN_PRICE_CHART: Record<string, Record<AnudanType, number>> = {
+  'ବଲ୍ଲଭ ଧୂପ': { 'ସାମୟିକ': 1000, 'ସ୍ଥାୟୀ': 10000 },
+  'ସକାଳ ଧୂପ': { 'ସାମୟିକ': 1000, 'ସ୍ଥାୟୀ': 10000 },
+  'ଦ୍ଵିପ୍ରହର ଧୂପ': { 'ସାମୟିକ': 1000, 'ସ୍ଥାୟୀ': 10000 },
+  'ପଣା ଧୂପ': { 'ସାମୟିକ': 1000, 'ସ୍ଥାୟୀ': 10000 },
+  'ଚାରିଧୁପ': { 'ସାମୟିକ': 3000, 'ସ୍ଥାୟୀ': 30000 }
+};
+
+export const calculateAnudanAmount = (
+  selectedAnudan: string[],
+  anudanType?: AnudanType | ''
+): number => {
+  if (!anudanType || selectedAnudan.length === 0) return 0;
+  return selectedAnudan.reduce(
+    (sum, item) => sum + (ANUDAN_PRICE_CHART[item]?.[anudanType] ?? 0),
+    0
+  );
+};
 
 export const DAAN_OPTIONS = [
   'ଆଶ୍ରମ ଚାନ୍ଦା',
@@ -61,6 +85,7 @@ export const SAMPLE_TRANSACTION: TransactionDetails = {
   txnId: 'UPI/428901928491/SBI',
   selectedAnudan: ['ଚାରିଧୁପ'],
   selectedDaan: ['ଆଶ୍ରମ ଚାନ୍ଦା'],
+  anudanType: 'ସାମୟିକ',
   anudanPurpose: '',
   customSeva: '',
   sevaDate: 'କାର୍ତ୍ତିକ ପୂର୍ଣ୍ଣିମା (Kartika Purnima)',

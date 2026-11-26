@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  AnudanType,
   DonorDetails,
   OrgDetails,
   PaymentMode,
@@ -8,7 +9,14 @@ import {
   TransactionDetails,
   Signatory
 } from '../types/receipt';
-import { ANUDAN_OPTIONS, DAAN_OPTIONS, DEFAULT_JAGANNATH_LOGO } from '../utils/defaultData';
+import {
+  ANUDAN_OPTIONS,
+  ANUDAN_PRICE_CHART,
+  ANUDAN_TYPE_OPTIONS,
+  calculateAnudanAmount,
+  DAAN_OPTIONS,
+  DEFAULT_JAGANNATH_LOGO
+} from '../utils/defaultData';
 import { formatAmountInOdia, numberToWords } from '../utils/numberToWords';
 import {
   Building2,
@@ -68,6 +76,11 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   isSavingRecord
 }) => {
   const [isEditingOrg, setIsEditingOrg] = useState(false);
+  const [isManualAmount, setIsManualAmount] = useState(false);
+
+  const activeAnudanType: AnudanType = transaction.anudanType || 'ସାମୟିକ';
+  const chartAmount = calculateAnudanAmount(transaction.selectedAnudan, activeAnudanType);
+  const isAmountOverridden = transaction.selectedAnudan.length > 0 && transaction.amount !== chartAmount;
 
   // Logo file upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,13 +97,55 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   };
 
   const handleAnudanToggle = (val: string) => {
-    setTransaction((prev) => {
-      const exists = prev.selectedAnudan.includes(val);
-      const updated = exists
-        ? prev.selectedAnudan.filter((item) => item !== val)
-        : [...prev.selectedAnudan, val];
-      return { ...prev, selectedAnudan: updated };
-    });
+    const exists = transaction.selectedAnudan.includes(val);
+    const updated = exists
+      ? transaction.selectedAnudan.filter((item) => item !== val)
+      : [...transaction.selectedAnudan, val];
+    const nextType: AnudanType = transaction.anudanType || 'ସାମୟିକ';
+    const nextChartAmount = calculateAnudanAmount(updated, nextType);
+
+    if (updated.length > 0) {
+      setIsManualAmount(false);
+      setTransaction((prev) => ({
+        ...prev,
+        selectedAnudan: updated,
+        anudanType: prev.anudanType || nextType,
+        amount: nextChartAmount
+      }));
+    } else {
+      const shouldResetAmount = !isManualAmount;
+      if (shouldResetAmount) {
+        setIsManualAmount(false);
+      }
+      setTransaction((prev) => ({
+        ...prev,
+        selectedAnudan: updated,
+        amount: shouldResetAmount ? 0 : prev.amount
+      }));
+    }
+  };
+
+  const handleAnudanTypeChange = (nextType: AnudanType) => {
+    const nextChartAmount = calculateAnudanAmount(transaction.selectedAnudan, nextType);
+    if (transaction.selectedAnudan.length > 0) {
+      setIsManualAmount(false);
+    }
+    setTransaction((prev) => ({
+      ...prev,
+      anudanType: nextType,
+      amount: prev.selectedAnudan.length > 0 ? nextChartAmount : prev.amount
+    }));
+  };
+
+  const handleAmountChange = (nextAmount: number) => {
+    const sanitizedAmount = Math.max(0, nextAmount);
+    setIsManualAmount(transaction.selectedAnudan.length > 0 && sanitizedAmount !== chartAmount);
+    setTransaction((prev) => ({ ...prev, amount: sanitizedAmount }));
+  };
+
+  const handleResetToChartAmount = () => {
+    setIsManualAmount(false);
+    setTransaction((prev) => ({ ...prev, amount: chartAmount }));
   };
 
   const handleDaanToggle = (val: string) => {
@@ -340,16 +395,33 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
                 min="0"
                 step="1"
                 value={transaction.amount || ''}
-                onChange={(e) =>
-                  setTransaction({
-                    ...transaction,
-                    amount: Math.max(0, parseFloat(e.target.value) || 0)
-                  })
-                }
+                onChange={(e) => handleAmountChange(parseFloat(e.target.value) || 0)}
                 className="w-full pl-7 pr-3 py-2 border border-green-300 rounded-lg bg-green-50/60 text-green-900 font-black text-lg focus:ring-2 focus:ring-green-500 outline-none"
                 placeholder="0"
               />
             </div>
+            {transaction.selectedAnudan.length > 0 && (
+              <div className="mt-1 flex items-center justify-between gap-1 text-[10px]">
+                {isAmountOverridden ? (
+                  <>
+                    <span className="text-amber-700 font-bold">
+                      Manual override (Chart: ₹{chartAmount.toLocaleString('en-IN')})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetToChartAmount}
+                      className="text-orange-700 hover:underline font-black shrink-0"
+                    >
+                      Use Chart
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-emerald-700 font-bold">
+                    Auto-filled ({activeAnudanType}: ₹{chartAmount.toLocaleString('en-IN')})
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -403,7 +475,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
               <button
                 key={amt}
                 type="button"
-                onClick={() => setTransaction({ ...transaction, amount: amt })}
+                onClick={() => handleAmountChange(amt)}
                 className={`text-xs px-2 py-1 rounded-md border font-bold transition ${
                   transaction.amount === amt
                     ? 'bg-green-600 text-white border-green-700'
@@ -583,6 +655,37 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
 
         {/* 1. Anudan (Dhupa Seva) */}
         <div className="bg-orange-50/80 p-3.5 rounded-xl border border-orange-200">
+          <div className="mb-3 pb-2.5 border-b border-orange-200/80 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[11px] font-black text-orange-900 uppercase tracking-wide">
+              ଧୂପସେବା ପ୍ରକାର (Seva Type)
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 min-w-[200px]">
+              {ANUDAN_TYPE_OPTIONS.map((opt) => {
+                const isSelected = transaction.anudanType === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer select-none transition text-xs font-bold ${
+                      isSelected
+                        ? 'bg-orange-600 text-white border-orange-700 shadow-xs'
+                        : 'bg-white hover:bg-orange-100/60 text-slate-700 border-orange-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="anudanType"
+                      value={opt.value}
+                      checked={isSelected}
+                      onChange={() => handleAnudanTypeChange(opt.value)}
+                      className="accent-orange-600 w-3.5 h-3.5"
+                    />
+                    <span>{opt.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-black text-orange-900 uppercase tracking-wide">
               ଅନୁଦାନ (ଧୂପସେବା ନିମନ୍ତେ)
@@ -596,22 +699,34 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
             {ANUDAN_OPTIONS.map((item) => {
               const isChecked = transaction.selectedAnudan.includes(item);
               const isChariDhupa = item === 'ଚାରିଧୁପ';
+              const itemPrice = ANUDAN_PRICE_CHART[item]?.[activeAnudanType] ?? 0;
               return (
                 <label
                   key={item}
-                  className={`flex items-center p-2 rounded-lg border cursor-pointer select-none transition ${
+                  className={`flex items-center justify-between gap-1.5 p-2 rounded-lg border cursor-pointer select-none transition ${
                     isChecked
                       ? 'bg-orange-600 text-white font-bold border-orange-700 shadow-xs'
                       : 'bg-white hover:bg-orange-100/50 text-slate-700 border-orange-200'
                   } ${isChariDhupa ? 'col-span-2 sm:col-span-1 border-orange-400 font-bold' : ''}`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => handleAnudanToggle(item)}
-                    className="mr-2 accent-orange-600 w-4 h-4 rounded"
-                  />
-                  <span>{item}</span>
+                  <span className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handleAnudanToggle(item)}
+                      className="mr-2 accent-orange-600 w-4 h-4 rounded shrink-0"
+                    />
+                    <span>{item}</span>
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                      isChecked
+                        ? 'bg-orange-700/70 text-orange-50'
+                        : 'bg-orange-50 text-orange-800 border border-orange-200/70'
+                    }`}
+                  >
+                    ₹{itemPrice.toLocaleString('en-IN')}
+                  </span>
                 </label>
               );
             })}

@@ -27,8 +27,13 @@ export const WhatsAppShareModal: React.FC<WhatsAppShareModalProps> = ({
 
   if (!isOpen) return null;
 
+  const anudanLabel =
+    transaction.selectedAnudan.length > 0 && transaction.anudanType
+      ? `${transaction.selectedAnudan.join(', ')} (${transaction.anudanType})`
+      : transaction.selectedAnudan.join(', ');
+
   const sevaList = [
-    ...transaction.selectedAnudan,
+    ...(anudanLabel ? [anudanLabel] : []),
     ...(transaction.anudanPurpose ? [transaction.anudanPurpose] : []),
     ...transaction.selectedDaan,
     ...(transaction.customSeva ? [transaction.customSeva] : [])

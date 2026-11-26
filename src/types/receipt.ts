@@ -4,6 +4,7 @@ export type PaymentMode = '' | 'ନଗଦ' | 'ଅନଲାଇନ୍' | 'ଚେ�
 
 export type IdType = 'ପ୍ୟାନ୍' | 'ଆଧାର' | 'ଭୋଟ ପରିଚୟ' | 'ଅନ୍ୟାନ୍ୟ';
 export type Signatory = 'sunil' | 'biranchi';
+export type AnudanType = 'ସାମୟିକ' | 'ସ୍ଥାୟୀ';
 
 export interface OrgDetails {
   name: string;
@@ -39,6 +40,7 @@ export interface TransactionDetails {
   txnId: string;
   selectedAnudan: string[]; // e.g. 'ବଲ୍ଲଭ ଧୂପ', 'ସକାଳ ଧୂପ', etc.
   selectedDaan: string[];   // e.g. 'ଆଶ୍ରମ ଚାନ୍ଦା', 'ମହୋତ୍ସବ ଖର୍ଚ୍ଚ', etc.
+  anudanType?: AnudanType | '';
   anudanPurpose: string;
   customSeva: string;
   sevaDate: string;

@@ -24,7 +24,8 @@ const HEADERS = [
   'Seva Date',
   'Show UPI QR',
   'Signatory',
-  'Total Amount'
+  'Total Amount',
+  'Anudan Type'
 ];
 
 function getSheet_() {
@@ -106,6 +107,7 @@ function valuesToRecord_(row) {
       txnId: String(row[15] || ''),
       selectedAnudan: splitList_(row[16]),
       selectedDaan: splitList_(row[17]),
+      anudanType: row[24] || '',
       anudanPurpose: String(row[18] || ''),
       customSeva: String(row[19] || ''),
       sevaDate: String(row[20] || ''),
@@ -152,7 +154,8 @@ function rowToValues_(record) {
     transaction.sevaDate || '',
     transaction.showUpiQr === true,
     signatory,
-    Number(record.totalAmount) || Number(transaction.amount) || 0
+    Number(record.totalAmount) || Number(transaction.amount) || 0,
+    transaction.anudanType || ''
   ];
 }
 

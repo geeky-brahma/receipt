@@ -65,6 +65,7 @@ export const ReceiptHistoryModal: React.FC<ReceiptHistoryModalProps> = ({
       'Payment Mode',
       'Txn ID',
       'Anudan (Dhupa)',
+      'Anudan Type',
       'Anudan Purpose',
       'Daan (Purpose)',
       'Designated Date'
@@ -85,6 +86,7 @@ export const ReceiptHistoryModal: React.FC<ReceiptHistoryModalProps> = ({
       `"${r.transaction.mode}"`,
       `"${r.transaction.txnId.replace(/"/g, '""')}"`,
       `"${r.transaction.selectedAnudan.join(', ')}"`,
+      `"${r.transaction.anudanType || ''}"`,
       `"${(r.transaction.anudanPurpose || '').replace(/"/g, '""')}"`,
       `"${r.transaction.selectedDaan.join(', ')}"`,
       `"${r.transaction.sevaDate.replace(/"/g, '""')}"`
