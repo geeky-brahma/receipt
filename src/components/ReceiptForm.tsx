@@ -30,7 +30,10 @@ import {
   Sparkles,
   UserCheck,
   CheckCircle2,
-  Share2
+  Share2,
+  Eye,
+  Pencil,
+  RotateCcw
 } from 'lucide-react';
 
 interface ReceiptFormProps {
@@ -40,6 +43,9 @@ interface ReceiptFormProps {
   setTransaction: React.Dispatch<React.SetStateAction<TransactionDetails>>;
   org: OrgDetails;
   setOrg: React.Dispatch<React.SetStateAction<OrgDetails>>;
+  recordMode: 'new' | 'view' | 'edit';
+  onStartNewReceipt: () => void;
+  onSwitchToEdit: () => void;
   onGeneratePdf: () => void;
   onDirectPrint: () => void;
   onSaveToHistory: () => void | Promise<void | boolean>;
@@ -67,6 +73,9 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
   setTransaction,
   org,
   setOrg,
+  recordMode,
+  onStartNewReceipt,
+  onSwitchToEdit,
   onGeneratePdf,
   onDirectPrint,
   onSaveToHistory,
@@ -77,6 +86,8 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
 }) => {
   const [isEditingOrg, setIsEditingOrg] = useState(false);
   const [isManualAmount, setIsManualAmount] = useState(false);
+  const isViewMode = recordMode === 'view';
+  const isEditMode = recordMode === 'edit';
 
   const activeAnudanType: AnudanType = transaction.anudanType || 'ସାମୟିକ';
   const chartAmount = calculateAnudanAmount(transaction.selectedAnudan, activeAnudanType);
@@ -187,13 +198,63 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
         <button
           type="button"
           onClick={onFillSample}
-          className="text-xs bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold px-3 py-1.5 rounded-lg border border-orange-200 flex items-center gap-1.5 transition active:scale-95 shadow-xs"
+          disabled={isViewMode}
+          className="text-xs bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold px-3 py-1.5 rounded-lg border border-orange-200 flex items-center gap-1.5 transition active:scale-95 shadow-xs disabled:opacity-50 disabled:pointer-events-none"
           title="Fill sample donor details to test"
         >
           <Sparkles className="w-3.5 h-3.5 text-orange-600" />
           <span>ଉଦାହରଣ (Sample)</span>
         </button>
       </div>
+
+      {isViewMode && (
+        <div className="bg-amber-50 border border-amber-300 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-amber-900 font-bold">
+            <Eye className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>Viewing saved record ({transaction.receiptNo}) — Read-only</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={onSwitchToEdit}
+              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1 transition"
+            >
+              <Pencil className="w-3 h-3" />
+              <span>Edit</span>
+            </button>
+            <button
+              type="button"
+              onClick={onStartNewReceipt}
+              className="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg font-bold flex items-center gap-1 transition"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>New</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isEditMode && (
+        <div className="bg-blue-50 border border-blue-300 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-blue-900 font-bold">
+            <Pencil className="w-4 h-4 text-blue-700 shrink-0" />
+            <span>Editing saved record ({transaction.receiptNo})</span>
+          </div>
+          <button
+            type="button"
+            onClick={onStartNewReceipt}
+            className="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded-lg font-bold flex items-center gap-1 transition"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Cancel</span>
+          </button>
+        </div>
+      )}
+
+      <fieldset
+        disabled={isViewMode}
+        className={isViewMode ? 'space-y-6 pointer-events-none select-none opacity-85' : 'space-y-6'}
+      >
 
       {/* SECTION 1: Organization Details */}
       <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -344,15 +405,17 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs text-slate-600 font-bold">ରସିଦ୍ ନଂ (Receipt No)</label>
-              <button
-                type="button"
-                onClick={generateNextReceiptNo}
-                className="text-[10px] text-orange-600 hover:underline flex items-center gap-0.5"
-                title="Generate new receipt number"
-              >
-                <RefreshCw className="w-2.5 h-2.5" />
-                <span>Next</span>
-              </button>
+              {!isEditMode && (
+                <button
+                  type="button"
+                  onClick={generateNextReceiptNo}
+                  className="text-[10px] text-orange-600 hover:underline flex items-center gap-0.5"
+                  title="Generate new receipt number"
+                >
+                  <RefreshCw className="w-2.5 h-2.5" />
+                  <span>Next</span>
+                </button>
+              )}
             </div>
             <input
               type="text"
@@ -823,6 +886,7 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           </div>
         </div>
       </div>
+      </fieldset>
 
       {/* PRIMARY ACTION BUTTONS */}
       <div className="pt-4 border-t border-slate-200 space-y-2.5 sticky bottom-0 bg-white/95 backdrop-blur-sm p-2 -mx-2 rounded-xl shadow-lg border border-slate-200">
@@ -862,19 +926,25 @@ export const ReceiptForm: React.FC<ReceiptFormProps> = ({
           <button
             type="button"
             onClick={onSaveToHistory}
-            disabled={isSavingRecord}
-            className="py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-70 disabled:cursor-wait text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow"
-            title="Save this receipt to internal register"
+            disabled={isSavingRecord || isViewMode}
+            className="py-2.5 px-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow"
+            title={
+              isViewMode
+                ? 'Read-only view mode. Click Edit to modify this record.'
+                : isEditMode
+                  ? 'Update this existing receipt record'
+                  : 'Save this receipt to internal register'
+            }
           >
             {isSavingRecord ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin text-emerald-200" />
-                <span>Saving...</span>
+                <span>{isEditMode ? 'Updating...' : 'Saving...'}</span>
               </>
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-                <span>ସଞ୍ଚୟ (Save)</span>
+                <span>{isEditMode ? 'ଅପଡେଟ୍ (Update)' : 'ସଞ୍ଚୟ (Save)'}</span>
               </>
             )}
           </button>
