@@ -7,6 +7,7 @@ import {
   Download,
   Trash2,
   Eye,
+  Pencil,
   FileSpreadsheet,
   Receipt,
   Calendar,
@@ -17,7 +18,8 @@ interface ReceiptHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   records: ReceiptRecord[];
-  onLoadRecord: (record: ReceiptRecord) => void;
+  onViewRecord: (record: ReceiptRecord) => void;
+  onEditRecord: (record: ReceiptRecord) => void;
   onDeleteRecord: (id: string) => void | Promise<void>;
   onClearAll: () => void | Promise<void>;
 }
@@ -26,7 +28,8 @@ export const ReceiptHistoryModal: React.FC<ReceiptHistoryModalProps> = ({
   isOpen,
   onClose,
   records,
-  onLoadRecord,
+  onViewRecord,
+  onEditRecord,
   onDeleteRecord,
   onClearAll
 }) => {
@@ -241,13 +244,23 @@ export const ReceiptHistoryModal: React.FC<ReceiptHistoryModalProps> = ({
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => {
-                        onLoadRecord(item);
+                        onViewRecord(item);
                         onClose();
                       }}
                       className="p-2 bg-orange-50 hover:bg-orange-100 text-orange-800 rounded-lg transition"
-                      title="Load into Preview and Form"
+                      title="View Record (Read-only)"
                     >
                       <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        onEditRecord(item);
+                        onClose();
+                      }}
+                      className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition"
+                      title="Edit Record"
+                    >
+                      <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => onDeleteRecord(item.id)}

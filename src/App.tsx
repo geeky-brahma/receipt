@@ -155,6 +155,8 @@ export default function App() {
   });
   const [isSyncingRecords, setIsSyncingRecords] = useState(false);
   const [isSavingRecord, setIsSavingRecord] = useState(false);
+  const [recordMode, setRecordMode] = useState<'new' | 'view' | 'edit'>('new');
+  const [activeRecord, setActiveRecord] = useState<ReceiptRecord | null>(null);
 
   // 6. UI Modals & Notifications
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -217,6 +219,7 @@ export default function App() {
   }, []);
 
   const saveDraft = () => {
+    if (recordMode === 'view') return;
     const draft: ReceiptDraft = {
       org,
       donor,
@@ -269,24 +272,29 @@ export default function App() {
 
   const currentScale = manualZoom !== null ? manualZoom : autoScale;
 
-  // Save to Receipt Register
+  // Save to Receipt Register (creates new record or updates existing when editing)
   const handleSaveToHistory = async (): Promise<boolean> => {
-    if (isSavingRecord) return false;
+    if (isSavingRecord || recordMode === 'view') return false;
 
     if (!donor.name.trim() && transaction.amount === 0) {
       showToast('⚠️ Please enter donor name or amount before saving.');
       return false;
     }
 
-    const receiptNo = getNextReceiptNo(records);
+    const isEditingExisting = recordMode === 'edit' && activeRecord !== null;
+    const receiptNo = isEditingExisting
+      ? transaction.receiptNo.trim() || activeRecord.receiptNo
+      : getNextReceiptNo(records);
     const signatory = transaction.signatory || org.signatory;
     const transactionToSave = { ...transaction, receiptNo, signatory };
     setTransaction(transactionToSave);
-    const newRecord: ReceiptRecord = {
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    const recordToSave: ReceiptRecord = {
+      id: isEditingExisting
+        ? activeRecord.id
+        : `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       receiptNo,
       date: transactionToSave.date,
-      createdAt: new Date().toISOString(),
+      createdAt: isEditingExisting ? activeRecord.createdAt : new Date().toISOString(),
       donor: { ...donor },
       transaction: transactionToSave,
       totalAmount: transactionToSave.amount,
@@ -295,18 +303,30 @@ export default function App() {
 
     try {
       setIsSavingRecord(true);
-      receiptApi.queueSave(newRecord);
+      receiptApi.queueSave(recordToSave);
       await receiptApi.syncPending();
-      const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
+      const updated = isEditingExisting
+        ? records.map((record) => (record.id === recordToSave.id ? recordToSave : record))
+        : [recordToSave, ...records.filter((record) => record.id !== recordToSave.id)];
       setRecords(updated);
       localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
-      showToast(`✅ ରସିଦ୍ ${newRecord.receiptNo} ସଫଳତାର ସହିତ ସଞ୍ଚିତ ହେଲା!`);
+      if (isEditingExisting) {
+        setActiveRecord(recordToSave);
+        showToast(`✅ ରସିଦ୍ ${recordToSave.receiptNo} ଅପଡେଟ୍ ହେଲା!`);
+      } else {
+        showToast(`✅ ରସିଦ୍ ${recordToSave.receiptNo} ସଫଳତାର ସହିତ ସଞ୍ଚିତ ହେଲା!`);
+      }
       return true;
     } catch (error) {
       console.error('Google Sheets save failed:', error);
-      const updated = [newRecord, ...records.filter((record) => record.id !== newRecord.id)];
+      const updated = isEditingExisting
+        ? records.map((record) => (record.id === recordToSave.id ? recordToSave : record))
+        : [recordToSave, ...records.filter((record) => record.id !== recordToSave.id)];
       setRecords(updated);
       localStorage.setItem('sansad_receipt_records', JSON.stringify(updated));
+      if (isEditingExisting) {
+        setActiveRecord(recordToSave);
+      }
       showToast('📥 Saved on this device. It will sync to Google Sheets when internet returns.');
       return true;
     } finally {
@@ -314,8 +334,7 @@ export default function App() {
     }
   };
 
-  // Load Record from History
-  const handleLoadRecord = (record: ReceiptRecord) => {
+  const applyRecordToForm = (record: ReceiptRecord) => {
     const signatory = record.signatory || record.transaction.signatory || org.signatory;
     setDonor({ ...record.donor });
     setTransaction({
@@ -328,7 +347,22 @@ export default function App() {
       signatory,
       signatureUrl: signatory === 'biranchi' ? '/biranchi_sign.png' : '/sunil_sign.jpg'
     }));
-    showToast(`📂 Loaded receipt ${record.receiptNo}`);
+  };
+
+  // View Record from History (read-only)
+  const handleViewRecord = (record: ReceiptRecord) => {
+    applyRecordToForm(record);
+    setActiveRecord(record);
+    setRecordMode('view');
+    showToast(`👁️ Viewing receipt ${record.receiptNo} (Read-only)`);
+  };
+
+  // Edit Record from History (updates existing record)
+  const handleEditRecord = (record: ReceiptRecord) => {
+    applyRecordToForm(record);
+    setActiveRecord(record);
+    setRecordMode('edit');
+    showToast(`✏️ Editing receipt ${record.receiptNo}`);
   };
 
   // Delete Record from History
@@ -406,10 +440,14 @@ export default function App() {
       const fileName = `${transaction.receiptNo || 'Receipt'}_Donation.pdf`;
       pdf.save(fileName);
 
-      // Save the same receipt details to the shared register before completing the action.
-      const saved = await handleSaveToHistory();
-      if (saved) {
+      // Save/update only when creating or editing; viewing an old record just downloads its PDF.
+      if (recordMode === 'view') {
         showToast(`📄 PDF ଡାଉନଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ: ${fileName}`);
+      } else {
+        const saved = await handleSaveToHistory();
+        if (saved) {
+          showToast(`📄 PDF ଡାଉନଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ: ${fileName}`);
+        }
       }
     } catch (err) {
       console.error('PDF Generation Error:', err);
@@ -433,6 +471,8 @@ export default function App() {
 
   // Reset form to blank new receipt
   const handleNewReceipt = () => {
+    setActiveRecord(null);
+    setRecordMode('new');
     setDonor({
       name: '',
       relationType: null,
@@ -476,7 +516,8 @@ export default function App() {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         records={records}
-        onLoadRecord={handleLoadRecord}
+        onViewRecord={handleViewRecord}
+        onEditRecord={handleEditRecord}
         onDeleteRecord={handleDeleteRecord}
         onClearAll={handleClearAllRecords}
       />
@@ -589,6 +630,14 @@ export default function App() {
             setTransaction={setTransaction}
             org={org}
             setOrg={setOrg}
+            recordMode={recordMode}
+            onStartNewReceipt={handleNewReceipt}
+            onSwitchToEdit={() => {
+              if (activeRecord) {
+                setRecordMode('edit');
+                showToast(`✏️ Editing receipt ${activeRecord.receiptNo}`);
+              }
+            }}
             onGeneratePdf={handleGeneratePdf}
             onDirectPrint={handleDirectPrint}
             onSaveToHistory={handleSaveToHistory}
